@@ -108,13 +108,11 @@ namespace mainLoop{
 			player->velocity.z += player->acceleration.z;
 		}*/
 
-		player->acceleration.y = .98;
+		player->acceleration.y = .74;
 
 		player->velocity += player->acceleration*dt;
 
 		glm::vec3 ds = (0.5f*player->acceleration*dt*dt+player->velocity*dt);
-
-
 
 		player->position += glm::vec3(ds.x*cos(phi) - ds.z*sin(phi), ds.y, ds.z*cos(phi) + ds.x*sin(phi));
 
