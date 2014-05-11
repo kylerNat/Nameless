@@ -1,0 +1,25 @@
+﻿Build started 5/10/2014 9:56:48 PM.
+     1>Project "C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\Nameless\Nameless.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Debug\Nameless.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\glm" /I"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\glext" /I"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\glew-1.10.0\include" /I"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\Nameless" /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Input.cpp
+         Input.cpp
+       Link:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\Debug\Nameless.exe" /NOLOGO /LIBPATH:"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\glew-1.10.0\lib" opengl32.lib glu32.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\Nameless.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\Debug\Nameless.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\Debug\Nameless.lib" /MACHINE:X86 Debug\Files.obj
+         Debug\Graphics.obj
+         Debug\Input.obj
+         Debug\MainLoop.obj
+         Debug\Windowing.obj
+         LINK : C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\Debug\Nameless.exe not found or not built by the last incremental link; performing full link
+         Nameless.vcxproj -> C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\Debug\Nameless.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\Debug\Nameless.exe;#1" /manifest Debug\Nameless.exe.intermediate.manifest
+       FinalizeBuildStatus:
+         Deleting file "Debug\Nameless.unsuccessfulbuild".
+         Touching "Debug\Nameless.lastbuildstate".
+     1>Done Building Project "C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\Nameless\Nameless.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:03.82
