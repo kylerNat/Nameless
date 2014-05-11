@@ -131,7 +131,7 @@ namespace graphics{
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LEQUAL);
         glDepthRange(0.0f, 1.0f);
-        glEnable(GL_DEPTH_CLAMP);
+        //glEnable(GL_DEPTH_CLAMP);
         return 0;
 	}
 
@@ -189,6 +189,8 @@ namespace graphics{
 			0.0, 0.0, (F+N)/(N-F), 2*F*N/(N-F),
 			0.0, 0.0, -1.0, 0.0
 		);
+
+		persp = glm::perspectiveFov(90.0, 1.6, 1.0, 0.001, 10000.0);
 
 		persp = persp*look*transformation;
 

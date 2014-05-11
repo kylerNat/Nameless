@@ -10,7 +10,6 @@ struct particle{//a position, velocity, and acceleration
 	glm::vec3 position;
 	glm::vec3 velocity;
 	glm::vec3 acceleration;
-	//particle():position(0.0, 0.0, 0.0), velocity(0.0), acceleration(0.0) {}
 };
 
 /*figure out later
@@ -27,4 +26,6 @@ namespace mainLoop{
 	extern world createWorld();//runtime: 7 days
 
 	extern world loop(world oldWorld);
+
+	extern world playerLoop(world oldWorld, float dt, float phi);
 }

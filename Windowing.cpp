@@ -8,13 +8,6 @@ namespace window {
 	LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam){
 		switch(msg)
 		{ 
-			/*case WM_KEYDOWN:
-				switch(wParam) {
-					case VK_ESCAPE:
-						DestroyWindow(hwnd);
-					break;
-				}
-			break;*/
 			case WM_INPUT: {
 				RAWINPUT * raw = readRID(lParam);
 
@@ -131,23 +124,7 @@ namespace window {
         GLuint vertexBufferObject;
         GLuint indexBufferObject;
 
-		/**float vertexData[] = {
-			0.0, 0.0, 0.0,
-			-0.3, 0.5, 0.0,
-			0.3, 0.1, 0.0,
-			1.0, 0.0, 0.0, 1.0,
-			0.0, 1.0, 0.0, 1.0,
-			0.0, 0.0, 1.0, 1.0,
-			0.0, 0.0, 1.0,
-			0.0, 0.0, 1.0,
-			0.0, 0.0, 1.0
-		};
-
-		unsigned short indexData[] = {
-			0, 1, 2
-		};*/
-
-		files::modelData data = files::getVertexData("models/Monkey.ply");
+		files::modelData data = files::getVertexData("models/World.ply");
 
 		glGenBuffers(1, &vertexBufferObject);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
@@ -165,9 +142,7 @@ namespace window {
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
-		//glEnableVertexAttribArray(2);
 		glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
-		//glVertexAttribPointer(1, 4, GL_FLOAT, 0, 0, (void*)(9*sizeof(float)));
 		glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, (void*)(data.vertexSize*sizeof(data.vertexData[0])/2));
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject);
 		

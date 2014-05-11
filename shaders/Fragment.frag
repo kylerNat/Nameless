@@ -30,7 +30,7 @@ float fresnel(vec3 position, vec3 normal, vec3 lightIn){
 }
 
 float beckmann(vec3 position, vec3 normal,vec3 lightIn){
-	float m = 0.025;//rms slope = sqrt(mean (slope^2))
+	float m = 0.625;//rms slope = sqrt(mean (slope^2))
 
 	float cosine2 = (1-dot(normalize(normal), -normalize(normalize(position-cameraPos)+normalize(lightIn)) ))/2;
 	float sine2 = (1-cosine2);
@@ -41,7 +41,7 @@ float beckmann(vec3 position, vec3 normal,vec3 lightIn){
 
 void main(){
 
-	vec3 lightIn = normalize(fragPosition-vec3(-10.0, 0.0, -15.0));
+	vec3 lightIn = normalize(fragPosition-vec3(-10.0, 10.0, -15.0));
 
 	float cosine = dot(normalize(fragNormal), lightIn);
 
@@ -58,7 +58,7 @@ void main(){
 	lighting = 1.0*texture(shadowMap, shadowPosition.xyz);
 */
 	if(texture(shadowMap, shadowPosition.xy).x < -tolerance+shadowPosition.z){
-		lighting = 0.0;
+		//lighting = 0.0;
 		//gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 		//return;
 	}
