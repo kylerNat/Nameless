@@ -77,7 +77,7 @@ namespace mainLoop{
 			if(input::pressed(' ')){
 				//player->velocity.x += 2.0*(dPos.y*cos(phi) - dPos.x*sin(phi));///glm::dot(player->velocity, player->velocity);
 				//player->velocity.z += 2.0*(dPos.x*cos(phi) + dPos.y*sin(phi));///glm::dot(player->velocity, player->velocity);
-				player->velocity.y = -1.0;
+				player->velocity.y = -2.0;
 			}
 			else{
 				player->acceleration.x -= 1.0f*player->velocity.x;
