@@ -18,7 +18,10 @@ struct hitbox{
 */
 
 struct world{
+	bool shaken;
 	glm::quat camera;
+	particle cameraParticle;
+	glm::vec3 cameraPosition;
 	particle * parts;//the zeroth is the player
 };
 

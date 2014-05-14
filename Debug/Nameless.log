@@ -1,13 +1,10 @@
-﻿Build started 5/11/2014 12:59:27 PM.
+﻿Build started 5/13/2014 11:52:41 PM.
      1>Project "C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\Nameless\Nameless.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
-         Creating "Debug\Nameless.unsuccessfulbuild" because "AlwaysCreate" was specified.
+         Touching "Debug\Nameless.unsuccessfulbuild".
        ClCompile:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\glm" /I"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\glext" /I"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\glew-1.10.0\include" /I"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\Nameless" /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt MainLoop.cpp
-         MainLoop.cpp
-     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(33): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(37): warning C4244: '*=' : conversion from 'double' to 'float', possible loss of data
-     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(50): warning C4305: '=' : truncation from 'double' to 'float'
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\glm" /I"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\glext" /I"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\glew-1.10.0\include" /I"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\Nameless" /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Input.cpp
+         Input.cpp
        Link:
          c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\Debug\Nameless.exe" /NOLOGO /LIBPATH:"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\glew-1.10.0\lib" opengl32.lib glu32.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\Nameless.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\Debug\Nameless.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\Debug\Nameless.lib" /MACHINE:X86 Debug\Files.obj
          Debug\Graphics.obj
@@ -25,4 +22,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.64
+Time Elapsed 00:00:02.07

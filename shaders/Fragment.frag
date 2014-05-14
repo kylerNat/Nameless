@@ -41,7 +41,7 @@ float beckmann(vec3 position, vec3 normal,vec3 lightIn){
 
 void main(){
 
-	vec3 lightIn = normalize(fragPosition-vec3(-10.0, 10.0, -15.0));
+	vec3 lightIn = normalize(fragPosition-vec3(16.0, 100.0, -145.0));
 
 	float cosine = dot(normalize(fragNormal), lightIn);
 
@@ -75,7 +75,9 @@ void main(){
 	}
 */
 
-	gl_FragColor = 
+	gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+
+	gl_FragColor += 
 		fragColor*(
 			//lambertian
 			+1.0*clamp(cosine, 0.0, 1.0)
@@ -87,13 +89,37 @@ void main(){
 		)
 		
 		//specular
-		+0.2*vec4(1.0, 1.0, 1.0, 1.0)*(
+		+1.0*vec4(0.2, 0.2, 0.2, 0.2)*(
+			//+pow(cosine, 1000)
+
+			+beckmann(fragPosition, fragNormal, lightIn)
+		);
+
+	lightIn = normalize(fragPosition-vec3(56.0, 10.0, 145.0));
+
+	cosine = dot(normalize(fragNormal), lightIn);
+
+	gl_FragColor += 
+		fragColor*(
+			//lambertian
+			+1.0*clamp(cosine, 0.0, 1.0)
+		)
+
+		+0.0*vec4(0.7, 0.8, 1.0, 1.0)*(
+			//fresnel reflectence
+			clamp(fresnel(fragPosition, fragNormal, lightIn), 0.0, 1.0)
+		)
+		
+		//specular
+		+1.0*vec4(0.2, 0.2, 0.2, 0.2)*(
 			//+pow(cosine, 1000)
 
 			+beckmann(fragPosition, fragNormal, lightIn)
 		);
 
 	gl_FragColor *= lighting;
+
+	gl_FragColor *= 0.75;
 	//gl_FragColor.xyz = normalize(cameraPos-fragPosition);
 	//gl_FragColor += vec4(1.0, 0.0, 0.0, 0.0)*(1-lighting);
 /*

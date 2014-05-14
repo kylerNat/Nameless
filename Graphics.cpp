@@ -147,9 +147,9 @@ namespace graphics{
 		//temp
 
 		glm::mat4 transformation(1.0);
-		transformation[3].x = theWorld.parts[0].position.x;
-		transformation[3].y = theWorld.parts[0].position.y;
-		transformation[3].z = theWorld.parts[0].position.z;
+		transformation[3].x = theWorld.cameraPosition.x;
+		transformation[3].y = theWorld.cameraPosition.y;
+		transformation[3].z = theWorld.cameraPosition.z;
 		//transformation[3].y = -5.0;
 		transformation[3].w = 1.0;
 
@@ -190,7 +190,7 @@ namespace graphics{
 			0.0, 0.0, -1.0, 0.0
 		);
 
-		persp = glm::perspectiveFov(90.0, 1.6, 1.0, 0.001, 10000.0);
+		persp = glm::perspectiveFov(90.0, 1.6, 1.0, 0.1, 10000.0);
 
 		persp = persp*look*transformation;
 
