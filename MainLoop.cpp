@@ -5,6 +5,7 @@ namespace mainLoop{
 		world newWorld;
 		newWorld.parts = new particle[10]();
 		newWorld.shaken = true;
+		srand (time(NULL));
 		return newWorld;
 	}
 
@@ -121,16 +122,17 @@ namespace mainLoop{
 			player->position.y = 0.0;
 		}
 
-		if(input::pressed('L')){
+		if(input::pressed(VK_LBUTTON)){
 			if(!newWorld.shaken){
-				newWorld.cameraParticle.velocity.x = 10.0;
+				newWorld.cameraParticle.velocity = 50.0f*glm::normalize(glm::vec3((rand()%100-50)/100.0, (rand()%100-50)/100.0, (rand()%100-50)/100.0));
+				//newWorld.cameraParticle.velocity -= glm::proj(newWorld.cameraParticle.velocity, lookDir);
 			}
 			newWorld.shaken = true;
 		}else{
 			newWorld.shaken = false;
 		}
 
-		newWorld.cameraParticle.acceleration = -40.0f*newWorld.cameraParticle.position - 5.0f*newWorld.cameraParticle.velocity;
+		newWorld.cameraParticle.acceleration = -80.0f*newWorld.cameraParticle.position - 5.0f*newWorld.cameraParticle.velocity;
 
 		newWorld.cameraParticle.velocity += newWorld.cameraParticle.acceleration*dt;
 		newWorld.cameraParticle.position += 0.5f*newWorld.cameraParticle.acceleration*dt*dt+newWorld.cameraParticle.velocity*dt;

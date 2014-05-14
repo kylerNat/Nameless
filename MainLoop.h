@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/projection.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <time.h>
 
 struct particle{//a position, velocity, and acceleration
 	glm::vec3 position;

@@ -32,6 +32,13 @@ namespace window {
 						input::moveMouse(ms.lLastX, ms.lLastY);
 					}
 
+					if(ms.usButtonFlags == RI_MOUSE_LEFT_BUTTON_DOWN){
+						input::press(VK_LBUTTON);
+					}
+					else if(ms.usButtonFlags == RI_MOUSE_LEFT_BUTTON_UP){
+						input::unpress(VK_LBUTTON);
+					}
+
 					raw->header.dwType = 1;
 				}
 			}
