@@ -14,6 +14,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace graphics {
+
+	struct vertexObject{
+		files::modelData data;
+		GLuint vertexArrayObject;
+		GLuint vertexBufferObject;
+		GLuint indexBufferObject;
+	};
+
 	extern GLuint createShader(GLenum, const char*);
 	
 	//extern GLuint createProgram(const GLuint * shaders, const int nShaders);
@@ -27,5 +35,5 @@ namespace graphics {
 
 	extern int init();
 
-	extern void draw(HDC dc, GLuint program, GLuint shadowProgram, files::modelData data, GLuint vertexArrayObject, GLuint vertexBufferObject, GLuint shadowMap, GLuint framebuffer, world theWorld);
+	extern void draw(HDC dc, GLuint program, GLuint shadowProgram, vertexObject * objects, size_t nObjs, GLuint shadowMap, GLuint framebuffer, world theWorld);
 }

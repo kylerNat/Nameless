@@ -136,7 +136,7 @@ namespace graphics{
 	}
 
 	float theta = 0;//3.14;
-	void draw(HDC dc, GLuint program, GLuint shadowProgram, files::modelData data, GLuint vertexArrayObject, GLuint vertexBufferObject, GLuint shadowMap, GLuint framebuffer, world theWorld){//TODO: add render data(probably a VBO list) as an imput // do swap buffers stuff
+	void draw(HDC dc, GLuint program, GLuint shadowProgram, vertexObject * objects, size_t nObjs, GLuint shadowMap, GLuint framebuffer, const world theWorld){//TODO: add render data(probably a VBO list) as an imput // do swap buffers stuff
 		//TODO: fix leaks
 		//TODO: redo shaders
 		
@@ -146,53 +146,6 @@ namespace graphics{
 
 		//temp
 
-		glm::mat4 transformation(1.0);
-		transformation[3].x = theWorld.cameraPosition.x;
-		transformation[3].y = theWorld.cameraPosition.y;
-		transformation[3].z = theWorld.cameraPosition.z;
-		//transformation[3].y = -5.0;
-		transformation[3].w = 1.0;
-
-		theta += 0.0005;
-		if(theta > 2*3.14159265358979323846264338327950){
-			theta -= 2*3.14159265358979323846264338327950;
-		}
-		glm::mat4 rot(1.0);
-		/*rot[0][0] = cos(theta);
-		rot[2][2] = cos(theta);
-		rot[0][2] = -sin(theta);
-		rot[2][0] = sin(theta);
-		*/
-		glm::mat4 rot1(1.0);
-		rot1[1][1] = cos(0.5*cos(5*theta));
-		rot1[2][2] = cos(0.5*cos(5*theta));
-		rot1[1][2] = -sin(0.5*cos(5*theta));
-		rot1[2][1] = sin(0.5*cos(5*theta));
-
-		//rot = rot*rot1;
-
-		transformation = transformation*rot;
-
-		glm::mat4 look = glm::mat4_cast(theWorld.camera);
-
-		//rot = look*rot;
-
-		float S = 1.0;
-		float xScale = 1.0;
-		float yScale = 1.6;
-		float N = 0.5;
-		float F = 32.0;
-
-		glm::mat4 persp(
-			S*xScale, 0.0, 0.0, 0.0,
-			0.0, S*yScale, 0.0, 0.0,
-			0.0, 0.0, (F+N)/(N-F), 2*F*N/(N-F),
-			0.0, 0.0, -1.0, 0.0
-		);
-
-		persp = glm::perspectiveFov(90.0, 1.6, 1.0, 0.1, 10000.0);
-
-		persp = persp*look*transformation;
 
 		glm::mat4 biasMat(
 			0.5, 0.0, 0.0, 0.0,
@@ -208,49 +161,49 @@ namespace graphics{
 		GLuint bias = glGetUniformLocation(program, "biasMat");
 		GLuint cameraPos = glGetUniformLocation(program, "cameraPos");
 
-		if(1){
-			glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-			
-			glUseProgram(shadowProgram);
+		//if(0){
+		//	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+		//	
+		//	glUseProgram(shadowProgram);
 
-			glm::mat4 lightTransform(
-				1.0, 0.0, 0.0, 1.0,
-				0.0, 1.0, 0.0, 0.0,
-				0.0, 0.0, 1.0, 15.0,
-				0.0, 0.0, 0.0, 1.0
-			);
+		//	glm::mat4 lightTransform(
+		//		1.0, 0.0, 0.0, 1.0,
+		//		0.0, 1.0, 0.0, 0.0,
+		//		0.0, 0.0, 1.0, 15.0,
+		//		0.0, 0.0, 0.0, 1.0
+		//	);
 
-			glm::mat4 shadowPersp = glm::ortho<float>(-10.0, 10.0, -10.0, 10.0, -10.0, 20.0);
-			glm::mat4 lookMat = glm::lookAt(glm::vec3(0.0, 0.0, 0.0), -glm::vec3(10.0, 0.0, 15.0), glm::vec3(0.0, 1.0, 0.0));
-			glm::mat4 depthModelMatrix = glm::mat4(1.0);
-			glm::mat4 transform = shadowPersp * lookMat * rot;// * transformation;
+		//	glm::mat4 shadowPersp = glm::ortho<float>(-10.0, 10.0, -10.0, 10.0, -10.0, 20.0);
+		//	glm::mat4 lookMat = glm::lookAt(glm::vec3(0.0, 0.0, 0.0), -glm::vec3(10.0, 0.0, 15.0), glm::vec3(0.0, 1.0, 0.0));
+		//	glm::mat4 depthModelMatrix = glm::mat4(1.0);
+		//	glm::mat4 transform = shadowPersp * lookMat * rot;// * transformation;
 
-			biasMat = biasMat*transform;
+		//	biasMat = biasMat*transform;
 
-			//transform = transform*lightTransform;
-			//TODO: move some crap outside for speedup// TODO: mabey done? check if the first TODO was completed
+		//	//transform = transform*lightTransform;
+		//	//TODO: move some crap outside for speedup// TODO: mabey done? check if the first TODO was completed
 
-			glViewport(0, 0, 2048, 2048);
+		//	glViewport(0, 0, 2048, 2048);
 
-	        glClearDepth(1.0f);
-			glClear(GL_DEPTH_BUFFER_BIT);
-			
-			GLuint trans = glGetUniformLocation(shadowProgram, "transformation");
+	 //       glClearDepth(1.0f);
+		//	glClear(GL_DEPTH_BUFFER_BIT);
+		//	
+		//	GLuint trans = glGetUniformLocation(shadowProgram, "transformation");
 
-			glBindVertexArray(vertexArrayObject);
+		//	glBindVertexArray(objects[0].vertexArrayObject);
 
-			glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-			glEnableVertexAttribArray(0);
-			glDisableVertexAttribArray(1);
-			glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
-			glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, (void*)(data.vertexSize*sizeof(data.vertexData[0])/2));
+		//	glBindBuffer(GL_ARRAY_BUFFER, objects[0].vertexBufferObject);
+		//	glEnableVertexAttribArray(0);
+		//	glDisableVertexAttribArray(1);
+		//	glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
+		//	glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, (void*)(objects[0].data.vertexSize*sizeof(objects[0].data.vertexData[0])/2));
 
-			glUniformMatrix4fv(trans, 1, GL_FALSE, &transform[0][0]);
-			glDrawElements(GL_TRIANGLES, data.indexSize, GL_UNSIGNED_SHORT, 0);
-			glBindVertexArray(0);
-		
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		}
+		//	glUniformMatrix4fv(trans, 1, GL_FALSE, &transform[0][0]);
+		//	glDrawElements(GL_TRIANGLES, objects[0].data.indexSize, GL_UNSIGNED_SHORT, 0);
+		//	glBindVertexArray(0);
+		//
+		//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		//}
 
 		glViewport(0, 0, 1920, 1200);
 
@@ -260,29 +213,76 @@ namespace graphics{
 
 		glUseProgram(program);
 
-		glBindVertexArray(vertexArrayObject);
+		glm::mat4 transformation(10.0);
+		glm::mat4 rot(1.0);
+		glm::mat4 look = glm::mat4_cast(theWorld.camera);
+		glm::mat4 persp(1.0);
 
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
-		glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, (void*)(data.vertexSize*sizeof(data.vertexData[0])/2));
+		for(int e = 0; e < 2; e++){
+			int i = theWorld.modelIds[e];
+			if(i == -1){
+				transformation = glm::mat4(10.0);
+				transformation[3].x = theWorld.positions[e]->x;
+				transformation[3].y = theWorld.positions[e]->y;
+				transformation[3].z = theWorld.positions[e]->z;
+				//transformation[3].y = -5.0;
+				transformation[3].w = 1.0;
 
-        glUniformMatrix4fv(modelToWorld, 1, GL_FALSE, &transformation[0][0]);
-		glUniformMatrix4fv(rotation, 1, GL_FALSE, &rot[0][0]);
-        glUniformMatrix4fv(perspective, 1, GL_FALSE, &persp[0][0]);
-        glUniformMatrix4fv(bias, 1, GL_FALSE, &biasMat[0][0]);
+				rot = glm::mat4(1.0);
 
-		glm::vec3 cam = theWorld.parts[0].position;
+				transformation = transformation*rot;
+				//rot = look*rot;
 
-        glUniform3fv(cameraPos, 1, &cam.x);
+				look = glm::mat4_cast(theWorld.camera);
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, shadowMap);
-		glUniform1i(shadowMape, 0);
-        glDrawElements(GL_TRIANGLES, data.indexSize, GL_UNSIGNED_SHORT, 0);
-        glBindVertexArray(0);
+				persp = glm::perspectiveFov(90.0, 1.6, 1.0, 0.1, 10000.0);//perspectiveFov is depreciated
 
+				persp = persp*look*transformation;
+			}
+			if(i < 0){
+				continue;
+			}
+			
+			glm::mat4 transformation1(1.0);
+			transformation1[3].x = -theWorld.positions[e]->x;
+			transformation1[3].y = -theWorld.positions[e]->y;
+			transformation1[3].z = -theWorld.positions[e]->z;
+			transformation1[3].w = 1.0;
+
+			transformation1 = transformation1*transformation;
+
+			rot = glm::mat4(1.0);
+
+			transformation1 = transformation1*rot;
+			//rot = look*rot;
+
+			persp = glm::perspectiveFov(90.0, 1.6, 1.0, 0.1, 10000.0);//perspectiveFov is depreciated
+
+			persp = persp*look*transformation1;
+			
+			glBindVertexArray(objects[i].vertexArrayObject);
+
+			glBindBuffer(GL_ARRAY_BUFFER, objects[i].vertexBufferObject);
+			glEnableVertexAttribArray(0);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
+			glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, (void*)(objects[i].data.vertexSize*sizeof(objects[i].data.vertexData[0])/2));
+
+			glUniformMatrix4fv(modelToWorld, 1, GL_FALSE, &transformation1[0][0]);
+			glUniformMatrix4fv(rotation, 1, GL_FALSE, &rot[0][0]);
+			glUniformMatrix4fv(perspective, 1, GL_FALSE, &persp[0][0]);
+			glUniformMatrix4fv(bias, 1, GL_FALSE, &biasMat[0][0]);
+
+			glm::vec3 cam = theWorld.playerPart.position;
+
+			glUniform3fv(cameraPos, 1, &cam.x);
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, shadowMap);
+			glUniform1i(shadowMape, 0);
+			glDrawElements(GL_TRIANGLES, objects[i].data.indexSize, GL_UNSIGNED_SHORT, 0);
+			glBindVertexArray(0);
+		}
 		//endtemp
 		SwapBuffers(dc);
 	}

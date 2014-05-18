@@ -13,6 +13,11 @@ struct particle{//a position, velocity, and acceleration
 	glm::vec3 acceleration;
 };
 
+struct controlData{
+	glm::vec3 velocity;
+	glm::vec3 acceleration;
+};
+
 /*figure out later
 struct hitbox{
 }
@@ -23,7 +28,11 @@ struct world{
 	glm::quat camera;
 	particle cameraParticle;
 	glm::vec3 cameraPosition;
-	particle * parts;//the zeroth is the player
+	controlData playerRel;
+	particle playerPart;
+	particle knife;
+	glm::vec3 ** positions;
+	int * modelIds;
 };
 
 namespace mainLoop{

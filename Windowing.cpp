@@ -12,7 +12,7 @@ namespace window {
 				RAWINPUT * raw = readRID(lParam);
 
 				if (raw->header.dwType == RIM_TYPEKEYBOARD) {
-					const RAWKEYBOARD & kb = raw->data.keyboard;
+					const RAWKEYBOARD kb = raw->data.keyboard;
 					
 					if(kb.Flags == RI_KEY_MAKE){
 						input::press(kb.VKey);
@@ -26,16 +26,16 @@ namespace window {
 					}
 				}
 				if (raw->header.dwType == RIM_TYPEMOUSE) {
-					const RAWMOUSE & ms = raw->data.mouse;
+					const RAWMOUSE ms = raw->data.mouse;
 					
 					if(ms.usFlags == MOUSE_MOVE_RELATIVE){
 						input::moveMouse(ms.lLastX, ms.lLastY);
 					}
 
-					if(ms.usButtonFlags == RI_MOUSE_LEFT_BUTTON_DOWN){
+					if(int(ms.usButtonFlags) & RI_MOUSE_LEFT_BUTTON_DOWN){//usButtonFlags can have more than one input at a time
 						input::press(VK_LBUTTON);
 					}
-					else if(ms.usButtonFlags == RI_MOUSE_LEFT_BUTTON_UP){
+					else if(ms.usButtonFlags & RI_MOUSE_LEFT_BUTTON_UP){
 						input::unpress(VK_LBUTTON);
 					}
 
@@ -127,32 +127,56 @@ namespace window {
 		MSG Msg;
 
 		//temp
-		GLuint vertexArrayObject;
-        GLuint vertexBufferObject;
-        GLuint indexBufferObject;
+		graphics::vertexObject * vOs = new graphics::vertexObject[2];
 
-		files::modelData data = files::getVertexData("models/World.ply");
+		files::modelData data0 = files::getVertexData("models/World1.ply");
+		vOs[0].data = data0;
 
-		glGenBuffers(1, &vertexBufferObject);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-		glBufferData(GL_ARRAY_BUFFER, data.vertexSize*sizeof(data.vertexData[0]), data.vertexData, GL_STATIC_DRAW);
+		glGenBuffers(1, &vOs[0].vertexBufferObject);
+		glBindBuffer(GL_ARRAY_BUFFER, vOs[0].vertexBufferObject);
+		glBufferData(GL_ARRAY_BUFFER, vOs[0].data.vertexSize*sizeof(vOs[0].data.vertexData[0]), vOs[0].data.vertexData, GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-		glGenBuffers(1, &indexBufferObject);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, data.indexSize*sizeof(data.indexData[0]), data.indexData, GL_STATIC_DRAW);
+		glGenBuffers(1, &vOs[0].indexBufferObject);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vOs[0].indexBufferObject);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER,vOs[0]. data.indexSize*sizeof(vOs[0].data.indexData[0]), vOs[0].data.indexData, GL_STATIC_DRAW);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		glGenVertexArrays(1, &vertexArrayObject);
-		glBindVertexArray(vertexArrayObject);
+		glGenVertexArrays(1, &vOs[0].vertexArrayObject);
+		glBindVertexArray(vOs[0].vertexArrayObject);
 
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
+		glBindBuffer(GL_ARRAY_BUFFER, vOs[0].vertexBufferObject);
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
-		glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, (void*)(data.vertexSize*sizeof(data.vertexData[0])/2));
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject);
-		
+		glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, (void*)(vOs[0].data.vertexSize*sizeof(vOs[0].data.vertexData[0])/2));
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vOs[0].indexBufferObject);
+		glBindVertexArray(0);
+
+		//second vertex object
+		int i = 1;
+		files::modelData data1 = files::getVertexData("models/missle.ply");
+		vOs[i].data = data1;
+
+		glGenBuffers(1, &vOs[1].vertexBufferObject);
+		glBindBuffer(GL_ARRAY_BUFFER, vOs[i].vertexBufferObject);
+		glBufferData(GL_ARRAY_BUFFER, vOs[i].data.vertexSize*sizeof(vOs[i].data.vertexData[0]), vOs[i].data.vertexData, GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glGenBuffers(1, &vOs[i].indexBufferObject);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vOs[i].indexBufferObject);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER,vOs[i]. data.indexSize*sizeof(vOs[i].data.indexData[0]), vOs[i].data.indexData, GL_STATIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		glGenVertexArrays(1, &vOs[i].vertexArrayObject);
+		glBindVertexArray(vOs[i].vertexArrayObject);
+
+		glBindBuffer(GL_ARRAY_BUFFER, vOs[i].vertexBufferObject);
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
+		glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, (void*)(vOs[i].data.vertexSize*sizeof(vOs[i].data.vertexData[0])/2));
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vOs[i].indexBufferObject);
 		glBindVertexArray(0);
 
 		//init shadow stuff
@@ -198,7 +222,7 @@ namespace window {
 		world theWorld = mainLoop::createWorld();
 
 		do {
-			graphics::draw(dc, program, shadowProgram, data, vertexArrayObject, vertexBufferObject, shadowMap, frameBuffer, theWorld);
+			graphics::draw(dc, program, shadowProgram, vOs, 2, shadowMap, frameBuffer, theWorld);
 			
 			theWorld = mainLoop::loop(theWorld);
 

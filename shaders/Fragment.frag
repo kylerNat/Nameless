@@ -30,21 +30,21 @@ float fresnel(vec3 position, vec3 normal, vec3 lightIn){
 }
 
 float beckmann(vec3 position, vec3 normal,vec3 lightIn){
-	float m = 0.625;//rms slope = sqrt(mean (slope^2))
+	float m = 0.025;//rms slope = sqrt(mean (slope^2))
 
-	float cosine2 = (1-dot(normalize(normal), -normalize(normalize(position-cameraPos)+normalize(lightIn)) ))/2;
+	if(m == 0.0){
+		return 0.0;
+	}
+
+	float cosine = dot(normalize(normal), normalize(normalize(position-cameraPos)-normalize(lightIn)) );
+	float cosine2 = cosine*cosine;
 	float sine2 = (1-cosine2);
-	float tangent2 = sine2/(cosine2);
+	float tangent2 = sine2/cosine2;
 
 	return exp(-tangent2/(m*m))/(pi*m*m*pow(cosine2, 2));
 }
 
 void main(){
-
-	vec3 lightIn = normalize(fragPosition-vec3(16.0, 100.0, -145.0));
-
-	float cosine = dot(normalize(fragNormal), lightIn);
-
 /*
 	float tolerance = 0.005*tan(acos(cosine));
 	tolerance = clamp(tolerance, 0.0, 0.01);
@@ -77,6 +77,10 @@ void main(){
 
 	gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
 
+	vec3 lightIn = normalize(fragPosition-vec3(16.0, 100.0, -145.0));
+
+	float cosine = dot(normalize(fragNormal), lightIn);
+
 	gl_FragColor += 
 		fragColor*(
 			//lambertian
@@ -89,8 +93,8 @@ void main(){
 		)
 		
 		//specular
-		+1.0*vec4(0.2, 0.2, 0.2, 0.2)*(
-			//+pow(cosine, 1000)
+		+1.0*vec4(1.0, 1.0, 1.0, 1.0)*(
+			//+clamp(pow(cosine, 1000), 0.0, 1.0)
 
 			+beckmann(fragPosition, fragNormal, lightIn)
 		);
@@ -99,7 +103,7 @@ void main(){
 
 	cosine = dot(normalize(fragNormal), lightIn);
 
-	gl_FragColor += 
+	gl_FragColor +=
 		fragColor*(
 			//lambertian
 			+1.0*clamp(cosine, 0.0, 1.0)
@@ -111,8 +115,30 @@ void main(){
 		)
 		
 		//specular
-		+1.0*vec4(0.2, 0.2, 0.2, 0.2)*(
-			//+pow(cosine, 1000)
+		+1.0*vec4(1.0, 1.0, 1.0, 1.0)*(
+			//+clamp(pow(cosine, 1000), 0.0, 1.0)
+
+			+beckmann(fragPosition, fragNormal, lightIn)
+		);
+
+	lightIn = normalize(fragPosition-vec3(59.0, 1.0, 0.0));
+
+	cosine = dot(normalize(fragNormal), lightIn);
+
+	gl_FragColor +=
+		fragColor*(
+			//lambertian
+			+1.0*clamp(cosine, 0.0, 1.0)
+		)
+
+		+0.0*vec4(0.7, 0.8, 1.0, 1.0)*(
+			//fresnel reflectence
+			clamp(fresnel(fragPosition, fragNormal, lightIn), 0.0, 1.0)
+		)
+		
+		//specular
+		+1.0*vec4(1.0, 1.0, 1.0, 1.0)*(
+			//+clamp(pow(cosine, 1000), 0.0, 1.0)
 
 			+beckmann(fragPosition, fragNormal, lightIn)
 		);
