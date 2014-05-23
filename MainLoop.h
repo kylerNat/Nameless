@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/projection.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <time.h>
 
 struct particle{//a position, velocity, and acceleration
@@ -31,14 +32,28 @@ struct world{
 	controlData playerRel;
 	particle playerPart;
 	particle knife;
-	glm::vec3 ** positions;
+	bool knifeSwitching;
+	float knifeAngle;
+	bool knifeSide;
+
+	particle * rockets;
+
+	//glm::vec3 ** positions;
 	int * modelIds;
+	float slowMoTimer;
+	particle * enemies;
+	float * enemyHealth;
 };
 
 namespace mainLoop{
 	extern world createWorld();//runtime: 7 days
 
+	extern particle particleLoop(particle p, float dt);
+
+	extern glm::vec3 * getPositions(world theWorld);
+	extern glm::mat4 * getTransforms(world theWorld);
+
 	extern world loop(world oldWorld);
 
-	extern world playerLoop(world oldWorld, float dt, float phi);
+	extern world playerLoop(world oldWorld, float dt, float phi, float theta);
 }

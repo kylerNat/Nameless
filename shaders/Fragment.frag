@@ -30,13 +30,13 @@ float fresnel(vec3 position, vec3 normal, vec3 lightIn){
 }
 
 float beckmann(vec3 position, vec3 normal,vec3 lightIn){
-	float m = 0.025;//rms slope = sqrt(mean (slope^2))
+	float m = 0.325;//rms slope = sqrt(mean (slope^2))
 
 	if(m == 0.0){
 		return 0.0;
 	}
 
-	float cosine = dot(normalize(normal), normalize(normalize(position-cameraPos)-normalize(lightIn)) );
+	float cosine = dot(normalize(normal), normalize(-normalize(position+cameraPos)+normalize(lightIn)) );//cosine between the normal and half vector
 	float cosine2 = cosine*cosine;
 	float sine2 = (1-cosine2);
 	float tangent2 = sine2/cosine2;
@@ -45,6 +45,12 @@ float beckmann(vec3 position, vec3 normal,vec3 lightIn){
 }
 
 void main(){
+	vec2 pToC = gl_FragCoord.xy - vec2(960, 600); 
+
+	if(dot(pToC, pToC) < 50.0f){
+		gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+		return;
+	}
 /*
 	float tolerance = 0.005*tan(acos(cosine));
 	tolerance = clamp(tolerance, 0.0, 0.01);
@@ -77,7 +83,7 @@ void main(){
 
 	gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
 
-	vec3 lightIn = normalize(fragPosition-vec3(16.0, 100.0, -145.0));
+	vec3 lightIn = normalize(vec3(16.0, 100.0, -145.0)-fragPosition);
 
 	float cosine = dot(normalize(fragNormal), lightIn);
 
@@ -99,7 +105,7 @@ void main(){
 			+beckmann(fragPosition, fragNormal, lightIn)
 		);
 
-	lightIn = normalize(fragPosition-vec3(56.0, 10.0, 145.0));
+	lightIn = normalize(vec3(56.0, 10.0, 145.0)-fragPosition);
 
 	cosine = dot(normalize(fragNormal), lightIn);
 
@@ -121,7 +127,7 @@ void main(){
 			+beckmann(fragPosition, fragNormal, lightIn)
 		);
 
-	lightIn = normalize(fragPosition-vec3(59.0, 1.0, 0.0));
+	lightIn = normalize(vec3(59.0, 1.0, 0.0)-fragPosition);
 
 	cosine = dot(normalize(fragNormal), lightIn);
 

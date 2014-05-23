@@ -32,11 +32,18 @@ namespace window {
 						input::moveMouse(ms.lLastX, ms.lLastY);
 					}
 
-					if(int(ms.usButtonFlags) & RI_MOUSE_LEFT_BUTTON_DOWN){//usButtonFlags can have more than one input at a time
+					if(ms.usButtonFlags & RI_MOUSE_LEFT_BUTTON_DOWN){//usButtonFlags can have more than one input at a time
 						input::press(VK_LBUTTON);
 					}
 					else if(ms.usButtonFlags & RI_MOUSE_LEFT_BUTTON_UP){
 						input::unpress(VK_LBUTTON);
+					}
+
+					if(ms.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_DOWN){//usButtonFlags can have more than one input at a time
+						input::press(VK_RBUTTON);
+					}
+					else if(ms.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_UP){
+						input::unpress(VK_RBUTTON);
 					}
 
 					raw->header.dwType = 1;
@@ -127,7 +134,7 @@ namespace window {
 		MSG Msg;
 
 		//temp
-		graphics::vertexObject * vOs = new graphics::vertexObject[2];
+		graphics::vertexObject * vOs = new graphics::vertexObject[3];
 
 		files::modelData data0 = files::getVertexData("models/World1.ply");
 		vOs[0].data = data0;
@@ -155,10 +162,62 @@ namespace window {
 
 		//second vertex object
 		int i = 1;
-		files::modelData data1 = files::getVertexData("models/missle.ply");
+		files::modelData data1 = files::getVertexData("models/knife.ply");
 		vOs[i].data = data1;
 
-		glGenBuffers(1, &vOs[1].vertexBufferObject);
+		glGenBuffers(1, &vOs[i].vertexBufferObject);
+		glBindBuffer(GL_ARRAY_BUFFER, vOs[i].vertexBufferObject);
+		glBufferData(GL_ARRAY_BUFFER, vOs[i].data.vertexSize*sizeof(vOs[i].data.vertexData[0]), vOs[i].data.vertexData, GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glGenBuffers(1, &vOs[i].indexBufferObject);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vOs[i].indexBufferObject);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER,vOs[i]. data.indexSize*sizeof(vOs[i].data.indexData[0]), vOs[i].data.indexData, GL_STATIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		glGenVertexArrays(1, &vOs[i].vertexArrayObject);
+		glBindVertexArray(vOs[i].vertexArrayObject);
+
+		glBindBuffer(GL_ARRAY_BUFFER, vOs[i].vertexBufferObject);
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
+		glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, (void*)(vOs[i].data.vertexSize*sizeof(vOs[i].data.vertexData[0])/2));
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vOs[i].indexBufferObject);
+		glBindVertexArray(0);
+
+		//third vertex object
+		i = 2;
+		files::modelData data2 = files::getVertexData("models/monkey.ply");
+		vOs[i].data = data2;
+
+		glGenBuffers(1, &vOs[i].vertexBufferObject);
+		glBindBuffer(GL_ARRAY_BUFFER, vOs[i].vertexBufferObject);
+		glBufferData(GL_ARRAY_BUFFER, vOs[i].data.vertexSize*sizeof(vOs[i].data.vertexData[0]), vOs[i].data.vertexData, GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glGenBuffers(1, &vOs[i].indexBufferObject);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vOs[i].indexBufferObject);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER,vOs[i]. data.indexSize*sizeof(vOs[i].data.indexData[0]), vOs[i].data.indexData, GL_STATIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		glGenVertexArrays(1, &vOs[i].vertexArrayObject);
+		glBindVertexArray(vOs[i].vertexArrayObject);
+
+		glBindBuffer(GL_ARRAY_BUFFER, vOs[i].vertexBufferObject);
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
+		glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, (void*)(vOs[i].data.vertexSize*sizeof(vOs[i].data.vertexData[0])/2));
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vOs[i].indexBufferObject);
+		glBindVertexArray(0);
+
+		//fourth vertex object
+		i = 3;
+		files::modelData data3 = files::getVertexData("models/missle.ply");
+		vOs[i].data = data3;
+
+		glGenBuffers(1, &vOs[i].vertexBufferObject);
 		glBindBuffer(GL_ARRAY_BUFFER, vOs[i].vertexBufferObject);
 		glBufferData(GL_ARRAY_BUFFER, vOs[i].data.vertexSize*sizeof(vOs[i].data.vertexData[0]), vOs[i].data.vertexData, GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -222,7 +281,7 @@ namespace window {
 		world theWorld = mainLoop::createWorld();
 
 		do {
-			graphics::draw(dc, program, shadowProgram, vOs, 2, shadowMap, frameBuffer, theWorld);
+			graphics::draw(dc, program, shadowProgram, vOs, 4, shadowMap, frameBuffer, theWorld);
 			
 			theWorld = mainLoop::loop(theWorld);
 

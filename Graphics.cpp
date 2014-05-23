@@ -160,6 +160,8 @@ namespace graphics{
 		GLuint shadowMape = glGetUniformLocation(program, "shadowMap");
 		GLuint bias = glGetUniformLocation(program, "biasMat");
 		GLuint cameraPos = glGetUniformLocation(program, "cameraPos");
+		
+		GLuint worldPos = glGetUniformLocation(program, "worldPosition");
 
 		//if(0){
 		//	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -213,53 +215,50 @@ namespace graphics{
 
 		glUseProgram(program);
 
-		glm::mat4 transformation(10.0);
-		glm::mat4 rot(1.0);
-		glm::mat4 look = glm::mat4_cast(theWorld.camera);
-		glm::mat4 persp(1.0);
+		glm::mat4 transformation;
+		glm::mat4 rot;
+		glm::mat4 look;
+		glm::mat4 persp;
 
-		for(int e = 0; e < 2; e++){
+		glm::vec3 * positions = mainLoop::getPositions(theWorld);
+		glm::mat4 * transforms = mainLoop::getTransforms(theWorld);
+
+		for(int e = 0; e < 203; e++){
 			int i = theWorld.modelIds[e];
 			if(i == -1){
-				transformation = glm::mat4(10.0);
-				transformation[3].x = theWorld.positions[e]->x;
-				transformation[3].y = theWorld.positions[e]->y;
-				transformation[3].z = theWorld.positions[e]->z;
-				//transformation[3].y = -5.0;
+				transformation = glm::mat4(1.0);
+				transformation[3].x = positions[e].x;
+				transformation[3].y = positions[e].y;
+				transformation[3].z = positions[e].z;
 				transformation[3].w = 1.0;
 
 				rot = glm::mat4(1.0);
 
 				transformation = transformation*rot;
-				//rot = look*rot;
 
 				look = glm::mat4_cast(theWorld.camera);
-
-				persp = glm::perspectiveFov(90.0, 1.6, 1.0, 0.1, 10000.0);//perspectiveFov is depreciated
-
-				persp = persp*look*transformation;
 			}
-			if(i < 0){
+			if(i < 0 || i > nObjs){
 				continue;
 			}
 			
 			glm::mat4 transformation1(1.0);
-			transformation1[3].x = -theWorld.positions[e]->x;
-			transformation1[3].y = -theWorld.positions[e]->y;
-			transformation1[3].z = -theWorld.positions[e]->z;
+			transformation1[3].x = -positions[e].x;
+			transformation1[3].y = -positions[e].y;
+			transformation1[3].z = -positions[e].z;
 			transformation1[3].w = 1.0;
 
 			transformation1 = transformation1*transformation;
 
-			rot = glm::mat4(1.0);
+			rot = transforms[e];//glm::mat4(1.0);
 
 			transformation1 = transformation1*rot;
 			//rot = look*rot;
 
-			persp = glm::perspectiveFov(90.0, 1.6, 1.0, 0.1, 10000.0);//perspectiveFov is depreciated
+			persp = glm::perspectiveFov(120.0, 1.6, 1.0, 0.1, 10000.0);//perspectiveFov is depreciated
 
 			persp = persp*look*transformation1;
-			
+
 			glBindVertexArray(objects[i].vertexArrayObject);
 
 			glBindBuffer(GL_ARRAY_BUFFER, objects[i].vertexBufferObject);
@@ -276,6 +275,10 @@ namespace graphics{
 			glm::vec3 cam = theWorld.playerPart.position;
 
 			glUniform3fv(cameraPos, 1, &cam.x);
+
+			glm::vec3 wrldPos = -positions[e];
+
+			glUniform3fv(worldPos, 1, &wrldPos.x);
 
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, shadowMap);
