@@ -1,90 +1,84 @@
 #include "MainLoop.h"
 
+glm::quat lookQuat(glm::vec3 camera, glm::vec3 center, glm::vec3 up){//lookAt for quaternions
+	auto look = camera-center;
+	float theta0 = atan2(look.x, look.z);
+	auto quat0 = glm::quat(cos(theta0/2), 0.0, sin(theta0/2), 0.0);
+	
+	auto hor = glm::vec2(look.x, look.z);
+	float theta1 = -atan2(look.y, sqrt(glm::dot(hor, hor)));
+	auto quat1 = glm::quat(cos(theta1/2), sin(theta1/2), 0.0, 0.0);
+
+	//can probly optimize the maths
+	auto upCare = up-glm::proj(up, look);
+	auto y = glm::vec3(0.0, 1.0, 0.0)-glm::proj(glm::vec3(0.0, 1.0, 0.0), look);
+	auto x = glm::cross(y, look);
+	float projX = glm::dot(upCare, x)/sqrt(glm::dot(x, x));
+	float projY = glm::dot(upCare, y)/sqrt(glm::dot(y, y));
+	float theta2 = -atan2(projX, projY);
+	auto quat2 = glm::quat(cos(theta2/2), 0.0, 0.0, sin(theta2/2));
+
+	return quat0*quat1*quat2;
+	/*
+	float cosine = glm::dot(glm::vec3(0.0, 0.0, 1.0), glm::normalize(camera-center));
+	float theta = -acos(cosine);
+	return glm::quat(cos(theta/2), sin(theta/2)*glm::normalize(glm::cross(camera-center, glm::vec3(0.0, 0.0, 1.0))));
+	*/
+}
+
 //TODO: rewrite
 namespace mainLoop{
-	world createWorld(){
+	world createWorld(){//make constructor?
 		srand (time(NULL));
 		world newWorld;
-		newWorld.slowMoTimer = 1.0;
-		newWorld.playerRel = controlData();
-		newWorld.playerPart = particle();
-		newWorld.knife = particle();
-		newWorld.shaken = true;
-		/*
-		newWorld.positions = new glm::vec3*[10];
-		newWorld.positions[0] = &newWorld.cameraPosition;
-		newWorld.positions[1] = new glm::vec3(0.0);//the main world is at the origin
-		newWorld.positions[2] = &newWorld.knife.position;
-		*/
-		newWorld.modelIds = new int[203];
-		newWorld.modelIds[0] = -1;// a model id of -1 sets camera
-		newWorld.modelIds[1] = 0;
-		newWorld.modelIds[2] = 1;
-		
+
+		newWorld.models = new model[n_models]();
+
+		newWorld.models[0].id = 0;
+		newWorld.models[0].pos = glm::vec3(0.0, 0.0, 0.0);
+		newWorld.models[0].att = glm::quat();
+
+		newWorld.models[1].id = 1;
+		newWorld.models[1].pos = glm::vec3(0.0, 0.0, 0.0);
+		newWorld.models[1].att = glm::quat();
+		newWorld.knf.part.p = &newWorld.models[1].pos;
+		newWorld.knf.att = &newWorld.models[1].att;
+
+		newWorld.enemies = new enemy[100]();
 		for(int i = 0; i < 100; i++){
-			newWorld.modelIds[3+i] = 2;
+			newWorld.models[2+i].id = 2;
+			newWorld.models[2+i].pos = glm::vec3(0.0, 0.0, 0.0);
+			newWorld.models[2+i].att = glm::quat();
+			newWorld.enemies[i].part.p = &newWorld.models[2+i].pos;
+			newWorld.enemies[i].att = &newWorld.models[2+i].att;
+			newWorld.enemies[i].health = 10.0f;
+			*newWorld.enemies[i].part.p = 1000.0f*glm::vec3((rand()%100-50)/100.0f, 0.0, (rand()%100-50)/100.0f);
 		}
 
-		for(int i = 0; i < 100; i++){
-			newWorld.modelIds[103+i] = 3;
-		}
+		newWorld.slowMoTimer = new float();
+		*newWorld.slowMoTimer = 1.0f;
 
-		newWorld.knifeAngle = 1.05;
-		newWorld.knifeSwitching = false;
-		newWorld.knifeAngle = 1;
+		newWorld.shaking = new bool();
 
-		newWorld.rockets = new particle[100]();
-
-		newWorld.enemies = new particle[100]();
-		newWorld.enemyHealth = new float[100];
-		for(int i = 0; i < 100; i++){
-			newWorld.enemies[i].position = glm::vec3((rand()%100-50)/100.0*100.0, 0.0, (rand()%100-50)/100.0*100.0);
-			newWorld.enemyHealth[i] = 10.0;
-		}
 		return newWorld;
 	}
 
 	particle particleLoop(particle p, float dt){
-		p.velocity += p.acceleration*dt;
-		p.position += 0.5f*p.acceleration*dt*dt+p.velocity*dt;
+		(*p.v) += (*p.a)*dt;
+		(*p.p) += 0.5f*(*p.a)*dt*dt+(*p.v)*dt;
 		return p;
 	}
 
-	glm::vec3 * getPositions(world theWorld){
-		glm::vec3 * positions = new glm::vec3[203]();
-		positions[0] = theWorld.cameraPosition;
-		positions[1] = glm::vec3(0.0, 0.0, 0.0);//the main world is at the origin
-		positions[2] = theWorld.knife.position;
-		for(int i = 0; i < 100; i++){
-			positions[3+i] = theWorld.enemies[i].position;
-		}/*
-		for(int i = 0; i < 100; i++){
-			positions[103+i] = theWorld.rockets[i].position;
-		}*/
-		return positions;
-	}
-
-	glm::mat4 * getTransforms(world theWorld){
-		glm::mat4 * transforms = new glm::mat4[203]();
-		//transforms[0] = glm::lookAt(glm::vec3(0.0, 0.0, 0.0), theWorld.cameraPosition, glm::vec3(0.0, 1.0, 0.0));
-		transforms[1] = glm::mat4(1.0);//the main world is at the origin
-		transforms[2] = glm::inverse(glm::lookAt(glm::vec3(0.0, 0.0, 0.0), (theWorld.knifeSide ? 1.0f : -1.0f)*glm::cross(glm::vec3(0.0, 1.0, 0.0), theWorld.playerPart.position-theWorld.knife.position)+2.0f*(theWorld.playerPart.position-theWorld.knife.position-0.5f*glm::vec3(0.0, theWorld.playerPart.position.y-theWorld.knife.position.y, 0.0)), (theWorld.knifeSide ? 1.0f : -1.0f)*glm::vec3(0.0, 1.0, 0.0)));
-		for(int i = 0; i < 100; i++){
-			transforms[3+i] = glm::inverse(glm::lookAt(glm::vec3(0.0, 0.0, 0.0), -theWorld.enemies[i].velocity, glm::vec3(0.0, 1.0, 0.0)));
-			if(theWorld.enemies[i].velocity == glm::vec3(0.0)){
-				transforms[3+i] = glm::inverse(glm::lookAt(glm::vec3(0.0, 0.0, 0.0), theWorld.enemies[i].position- theWorld.playerPart.position, glm::vec3(0.0, 1.0, 0.0)));
-			}
+	particle ground(particle p, float h){
+		if(p.p->y >= -h){
+			p.p->y = -h;
+			p.v->y = 0;
 		}
-		return transforms;
+		return p;
 	}
 
-	world playerLoopFail(world oldWorld, float dt, float phi){
-		world newWorld = oldWorld;
-
-		particle * player = &newWorld.playerPart;
-
+	player playerLoop(world wrld, player plr, float dt, float phi, float theta){
 		glm::vec2 moveDir = glm::vec2(0.0, 0.0);
-
 		if(input::pressed('W')){
 			moveDir.y += 1.0;
 		}
@@ -99,277 +93,207 @@ namespace mainLoop{
 			moveDir.x -= 1.0;
 		}
 
-		player->acceleration.x = moveDir.x*cos(phi)-moveDir.y*sin(phi);
-		player->acceleration.z = moveDir.y*cos(phi)+moveDir.x*sin(phi);
 
-		player->acceleration *= log(1.0+3.0+(glm::dot(player->velocity, player->velocity)));
+		if(moveDir != glm::vec2(0.0, 0.0)){
+			//straif //TODO: make better
+			plr.relAccel->x = 1.0*moveDir.x;
 
-		if(player->position.y >= 0.0){
-			if(input::pressed(' ')){
-				player->velocity.y = -3.0;
+			//direction change boost
+			if(plr.relVel->x*moveDir.x <= 0.0){
+				plr.relAccel->x *= 2.0*sqrt(1.0+abs(plr.relVel->x));
 			}
-			else{
-				player->acceleration -= 0.5f*player->velocity;
+
+			if(abs(plr.relVel->x) < 10.0){
+				plr.relAccel->x *= 10.0;
 			}
-		}
-		
-		player->acceleration.y = 1.74;
-		player->velocity += player->acceleration*dt;
-		player->position += 0.5f*player->acceleration*dt*dt+player->velocity*dt;
-
-		if(player->position.y >= 0.0){
-			player->velocity.y = 0.0;
-			player->position.y = 0.0;
-		}
-
-		return newWorld;
-	}
-
-	//TODO: split into different functions and rewrite
-	world playerLoop(world oldWorld, float dt, float phi, float theta){
-		world newWorld = oldWorld;
-
-		controlData * player = &newWorld.playerRel;
-		particle * realPlayer = &newWorld.playerPart;
-
-		glm::vec2 moveDir = glm::vec2(0.0, 0.0);
-
-		if(input::pressed('W')){
-			moveDir.x += 1.0;
-		}
-		if(input::pressed('S')){
-			moveDir.x -= 1.0;
-		}
-
-		if(input::pressed('A')){
-			moveDir.y += 1.0;
-		}
-		if(input::pressed('D')){
-			moveDir.y -= 1.0;
-		}
-
-		glm::vec3 lookDir = glm::vec3(-sin(phi), 0.0, cos(phi));
-		if(moveDir != glm::vec2(0.0)) {
-			player->acceleration.x = moveDir.y;
-			if(player->velocity.x*moveDir.y < -0.0){
-				//player->velocity *= -1.0;
-				player->acceleration.x *= 2.0*sqrt(abs(player->velocity.x));
-			}
-			if(abs(player->velocity.x) < 10.0){
-				player->acceleration.x *= 10.0;
-			}
-			player->acceleration.x -= 0.5f*player->velocity.x;
+			plr.relAccel->x -= 0.5f*plr.relVel->x;
 
 			//forward
-			player->acceleration.z = moveDir.x*1.0*exp(-abs(player->velocity.z)/7.0);
-			if(player->velocity.z*moveDir.x < -0.1){
-				//player->velocity *= -1.0;
-				player->acceleration.z *= 2.0*sqrt(abs(player->velocity.z));
+			plr.relAccel->y = moveDir.y*1.0*exp(-abs(plr.relVel->y)/7.0);
+			//direction change boost
+			if(plr.relVel->y*moveDir.y < -0.1){
+				plr.relAccel->y *= 2.0*sqrt(abs(plr.relVel->y));
 			}
-		
-			if(realPlayer->position.y >= 0.0){
+
+			if(plr.part.p->y >= 0.0){
 				if(input::pressed(' ')){
-					newWorld.shaken = false;
-					player->velocity.y = -3.0;
+					plr.part.v->y = -5.0;
 				}
 				else{
-					if(abs(player->velocity.z) < 10.0){
-						player->acceleration.z *= 10.0;
+					if(abs(plr.relVel->y) < 10.0){
+						plr.relAccel->y *= 10.0;
 					}
-					//player->acceleration.x -= 1.0f*player->velocity.x;
-					player->acceleration.z -= 1.0f*player->velocity.z;
+					plr.relAccel->y -= 1.0f*plr.relVel->y;
 				}
 			}
-		
-			player->acceleration.y = 2.74;
+			plr.part.a->x = cos(phi)*plr.relAccel->x-sin(phi)*plr.relAccel->y;
+			plr.part.a->y = gravity;
+			plr.part.a->z = cos(phi)*plr.relAccel->y+sin(phi)*plr.relAccel->x;
 
-			player->velocity += player->acceleration*dt;
-
-			glm::vec3 ds = (0.5f*player->acceleration*dt*dt+player->velocity*dt);
-
-			realPlayer->position += glm::vec3(ds.x*cos(phi) - ds.z*sin(phi), ds.y, ds.z*cos(phi) + ds.x*sin(phi));
-
-			glm::vec3 vel = player->velocity;
-
-			realPlayer->velocity =  glm::vec3(vel.x*cos(phi) - vel.z*sin(phi), vel.y, vel.z*cos(phi) + vel.x*sin(phi));
-		}
-		else {
-			realPlayer->acceleration = glm::vec3(0.0);
-
-			if(realPlayer->position.y >= 0.0){
-				if(input::pressed(' ')){
-					realPlayer->velocity.y = -5.0;
-				}
-				else{
-					realPlayer->acceleration -= 1.0f*realPlayer->velocity;
-				}
-			}
-		
-			realPlayer->acceleration.y = 5.74;
-			realPlayer->velocity += realPlayer->acceleration*dt;
-			realPlayer->position += 0.5f*realPlayer->acceleration*dt*dt+realPlayer->velocity*dt;
-
-			glm::vec3 vel = realPlayer->velocity;
-
-			player->velocity =  glm::vec3(vel.x*cos(-phi) - vel.z*sin(-phi), vel.y, vel.z*cos(-phi) + vel.x*sin(-phi));
-		}
-		if(realPlayer->position.y >= 0.0){
-			/*if(!input::pressed(' ')){
-				if(!newWorld.shaken){
-					auto shakeDir = glm::vec3(0.0, 1.0, 0.0);s
-					newWorld.cameraParticle.velocity = 21.0f*glm::normalize(shakeDir);
-					newWorld.shaken = true;
-				}
-			}*/
-			player->velocity.y = 0.0;
-			realPlayer->velocity.y = 0.0;
-			realPlayer->position.y = 0.0;
-		}
-
-		glm::vec3 fullLookDir(0.0);
-
-		if(input::pressed(VK_RBUTTON)){
-			if(!newWorld.knifeSwitching){
-				newWorld.knife.velocity = glm::vec3(3.0*newWorld.knifeAngle*cos(phi), -5.0, 3.0*newWorld.knifeAngle*sin(phi))+realPlayer->velocity;
-				newWorld.knifeSide = !newWorld.knifeSide;
-			}
-			newWorld.knifeSwitching = true;
-		}
-
-		if(input::pressed(VK_LBUTTON)){
-			fullLookDir = 2.0f*glm::vec3(-sin(phi)*cos(theta), sin(theta), cos(phi)*cos(theta));
-			newWorld.knifeAngle -= 3.0*dt*newWorld.knifeAngle/abs(newWorld.knifeAngle);
-			fullLookDir = 1.5f*glm::vec3(-sin(phi+newWorld.knifeAngle)*cos(theta), sin(theta), cos(phi+newWorld.knifeAngle)*cos(theta));
-			if(!newWorld.shaken){
-				auto randVector = glm::vec3((rand()%100-50)/100.0, (rand()%100-50)/100.0, (rand()%100-50)/100.0);
-				//newWorld.knife.velocity = 50.0f*lookDir;//glm::normalize(randVector);
-				newWorld.cameraParticle.velocity = /*10.0f*lookDir+*/5.0f*glm::normalize(randVector);
-				newWorld.cameraParticle.velocity -= glm::proj(newWorld.cameraParticle.velocity, lookDir);
-			}
-			newWorld.shaken = true;
-		}
-		else {
-			newWorld.knifeAngle = 1.05*(newWorld.knifeSide ? 1 : -1);
-			fullLookDir = 0.5f*glm::vec3(-sin(phi+newWorld.knifeAngle)*cos(theta+0.5), sin(theta+0.5), cos(phi+newWorld.knifeAngle)*cos(theta+0.5));
-			newWorld.shaken = false;
-		}
-
-		newWorld.cameraParticle.acceleration = -250.0f*newWorld.cameraParticle.position;
-		
-		//camera friction
-		if(newWorld.cameraParticle.velocity != glm::vec3(0.0)){
-			newWorld.cameraParticle.acceleration -= 20.0f*glm::normalize(newWorld.cameraParticle.velocity);
-		}
-
-		newWorld.cameraParticle.velocity += newWorld.cameraParticle.acceleration*dt;
-		newWorld.cameraParticle.position += 0.5f*newWorld.cameraParticle.acceleration*dt*dt+newWorld.cameraParticle.velocity*dt;
-
-		newWorld.cameraPosition = newWorld.cameraParticle.position*glm::mat3_cast(newWorld.camera)+realPlayer->position;
-
-		if(!newWorld.knifeSwitching){
-			newWorld.knife.acceleration = 75.0f//*exp(sqrt(glm::dot((realPlayer->position+5.0f*fullLookDir)-newWorld.knife.position, (realPlayer->position+5.0f*fullLookDir)-newWorld.knife.position))*1.1f)
-											*((realPlayer->position+5.0f*fullLookDir)-newWorld.knife.position)
-											- 2.0f*sqrt(10.0f*10.0f)*newWorld.knife.velocity
-											+ 19.0f*realPlayer->velocity;
+			plr.part.v->x = cos(phi)*plr.relVel->x-sin(phi)*plr.relVel->y;
+			plr.part.v->z = cos(phi)*plr.relVel->y+sin(phi)*plr.relVel->x;
 		}
 		else{
-			newWorld.knife.acceleration = glm::vec3(0.0, 5.74, 0.0);
-			if(newWorld.knife.position.y > realPlayer->position.y+5.0*sin(theta+0.5) && newWorld.knife.velocity.y > 0.0){//the knife has been caught
-				newWorld.knifeSwitching = false;
-				auto randVector = newWorld.knife.velocity;//glm::vec3((rand()%100-50)/100.0, (rand()%100-50)/100.0, (rand()%100-50)/100.0);
-				newWorld.cameraParticle.velocity = 5.0f*glm::normalize(randVector);
+			plr.part.a->x = 0.0;
+			plr.part.a->y = gravity;
+			plr.part.a->z = 0.0;
+
+			if(plr.part.p->y >= 0.0){
+				if(input::pressed(' ')){
+					plr.part.v->y = -5.0;
+				}
+				else{
+					(*plr.part.a) -= 1.0f*(*plr.part.v);
+				}
 			}
 		}
 
-		if(glm::dot((realPlayer->position+5.0f*fullLookDir)-newWorld.knife.position, (realPlayer->position+5.0f*fullLookDir)-newWorld.knife.position) > 1.0){
-			//newWorld.knife.acceleration += 10.0f*realPlayer->velocity;
-		}
-		newWorld.knife.velocity += newWorld.knife.acceleration*dt;
-		newWorld.knife.position += 0.5f*newWorld.knife.acceleration*dt*dt+newWorld.knife.velocity*dt;
+		plr.part = particleLoop(plr.part, dt);
+		plr.part = ground(plr.part, 0.0);
 
-		return newWorld;
+		plr.relVel->x = cos(phi)*plr.part.v->x+sin(phi)*plr.part.v->z;
+		plr.relVel->y = cos(phi)*plr.part.v->z-sin(phi)*plr.part.v->x;
+
+		return plr;
 	}
 
-	world enemiesLoop(world oldWorld, float dt){
-		world newWorld = oldWorld;
-		for(int i = 0; i < 100; i++){
-			if(newWorld.enemyHealth[i] >= 0.0){
-				auto knifeDist = newWorld.knife.position - newWorld.enemies[i].position;
+	camera cameraLoop(camera cam, glm::vec3 target, float dt, float phi, float theta){
+		*cam.part.a = -250.0f*(*cam.part.p);
+		if(*cam.part.v != glm::vec3(0.0)){
+			*cam.part.a -= 20.0f*glm::normalize(*cam.part.v);
+		}
+		cam.part = particleLoop(cam.part, dt);
+		cam.pos = target+*cam.part.p*glm::mat3_cast(cam.att);
+		cam.att = glm::quat(cos(theta/2), sin(theta/2), 0.0, 0.0) * glm::quat(cos(phi/2), 0.0, sin(phi/2), 0.0);
+		return cam;
+	}
 
-				if(newWorld.enemies[i].position != newWorld.playerPart.position){
-					newWorld.enemies[i].acceleration = 1.0f*(5.0f*glm::normalize(newWorld.playerPart.position - newWorld.enemies[i].position) - newWorld.enemies[i].velocity);
+	//TODO: add knife screen shake
+	knife knifeLoop(world wrld, knife knf, player plr, float dt, float phi, float theta){//the world will be used later to colide the knife with stuff
+		glm::vec3 arm;
+		
+		if(input::pressed(VK_RBUTTON)){
+			if(!knf.switching){
+				knf.part.v->x = 3.0*(knf.onRight ? 1.0 : -1.0)*cos(phi);
+				knf.part.v->y = -3.0;
+				knf.part.v->z = 3.0*(knf.onRight ? 1.0 : -1.0)*sin(phi);
+				(*knf.part.v) += (*plr.part.v);
+
+				knf.onRight = !knf.onRight;
+			}
+			knf.switching = true;
+		}
+
+		
+		if(input::pressed(VK_LBUTTON)){
+			knf.angle -= 3.0*dt*knf.angle/abs(knf.angle);
+			arm = 7.5f*glm::vec3(-sin(phi+knf.angle)*cos(theta), sin(theta), cos(phi+knf.angle)*cos(theta));
+			if(!(*wrld.shaking)){
+				auto randVector = glm::vec3((rand()%100-50)/100.0, (rand()%100-50)/100.0, (rand()%100-50)/100.0);
+				//newWorld.knife.velocity = 50.0f*lookDir;//glm::normalize(randVector);
+				*wrld.cam.part.v += /*10.0f*lookDir+*/5.0f*glm::normalize(randVector);
+				*wrld.cam.part.v -= *knf.part.v;
+			}
+			*wrld.shaking = true;
+		}
+		else {
+			*wrld.shaking = false;
+			arm = 2.5f*glm::vec3(-sin(phi+knf.angle)*cos(theta+0.5), sin(theta+0.5), cos(phi+knf.angle)*cos(theta+0.5));
+
+			if(abs(knf.angle) < 1.04 && glm::cross((*plr.part.p+arm)-(*knf.part.p), glm::vec3(0.0, 1.0, 0.0)) != glm::vec3(0.0, 0.0, 0.0)){
+				*knf.part.v += 15.0f*glm::normalize(glm::cross((*plr.part.p+arm)-(*knf.part.p), glm::vec3(0.0, (knf.onRight ? 1.0f : -1.0f), 0.0)));
+			}
+			/*if(abs(knf.angle) < 1.05) {
+				knf.angle += 3.0*dt*knf.angle/abs(knf.angle);
+			}
+			else {
+				knf.angle = 1.05*(knf.onRight ? 1.0 : -1.0);
+			}*/
+			knf.angle = 1.05*(knf.onRight ? 1.0 : -1.0);
+		}
+
+		if(!knf.switching){
+			(*knf.part.a) = 
+				  55.0f*(((*plr.part.p)+arm)-(*knf.part.p))
+				- 20.0f*glm::proj((*knf.part.v), ((*plr.part.p)+arm)-(*knf.part.p))
+				- 15.0f*((*knf.part.v)-glm::proj((*knf.part.v), ((*plr.part.p)+arm)-(*knf.part.p)))
+				+ 19.0f*(*plr.part.v);
+		}
+		else{
+			(*knf.part.a) = glm::vec3(0.0, gravity, 0.0);
+			if(knf.part.p->y > plr.part.p->y+arm.y-knf.part.p->y && knf.part.v->y > 0.0){//the knife has been caught
+				knf.switching = false;
+			}
+		}
+
+		knf.part = particleLoop(knf.part, dt);
+		//knf.part = ground(knf.part, 0.0);
+
+		(*knf.att) =
+			lookQuat(
+				glm::vec3(0.0, 0.0, 0.0),//eye
+					(knf.onRight ? 1.0f : -1.0f)*glm::cross(glm::vec3(0.0, 1.0, 0.0), (*plr.part.p)-(*knf.part.p))
+					//turns the knife up and down
+					+2.0f*((*plr.part.p)-(*knf.part.p)-0.5f*glm::vec3(0.0, plr.part.p->y-knf.part.p->y, 0.0)),// 2* the plr to knf vector w/o the vertical component
+				glm::vec3(0.0, (knf.onRight ? 1.0f : -1.0f), 0.0)//up
+			);
+			
+		return knf;
+	}
+
+	enemy * enemyLoop(world wrld, enemy * enemies, player plr, float dt, float phi, float theta){
+		for(int i = 0; i < 100; i++){
+			auto knifeDist = *wrld.knf.part.p - *enemies[i].part.p;
+			
+			if(1){//enemies[i].health > 0.0){
+				if(*enemies[i].part.p != *plr.part.p){
+					*enemies[i].part.a = 1.0f*(5.0f*glm::normalize(*plr.part.p - *enemies[i].part.p) - *enemies[i].part.v);
 					if(glm::dot(knifeDist, knifeDist) < pow(1.6+1.0, 2)){
-						newWorld.enemies[i].acceleration = 2.0f*((i & 1) ? 1 : -1)*(5.0f*glm::normalize(glm::cross(newWorld.playerPart.position - newWorld.enemies[i].position, glm::vec3(0.0, 1.0, 0.0)) - newWorld.enemies[i].velocity));
+						*enemies[i].part.a = 2.0f*((i & 1) ? 1 : -1)*(5.0f*glm::normalize(glm::cross(*wrld.plr.part.p - *enemies[i].part.p, glm::vec3(0.0, 1.0, 0.0)) - *enemies[i].part.v));
 					}
 				}
 
 				if(glm::dot(knifeDist, knifeDist) < pow(1.6, 2)){
-					newWorld.enemies[i].position -= sqrt(pow(1.6f, 2.0f) - glm::dot(knifeDist, knifeDist)) * glm::normalize(knifeDist);
-					newWorld.enemies[i].velocity += log(1.0f+0.01f*glm::dot(newWorld.knife.velocity, newWorld.knife.velocity))
-													*glm::proj(newWorld.knife.velocity, newWorld.knife.position - newWorld.enemies[i].position)
-												  - glm::proj(newWorld.enemies[i].velocity, newWorld.playerPart.position - newWorld.enemies[i].position);
-					newWorld.enemies[i].velocity.y = -0.5*sqrt(glm::dot(newWorld.knife.velocity, newWorld.knife.velocity));
+						float dmg = sqrt(glm::dot(*wrld.knf.part.v, *wrld.knf.part.v));
+				
+						*enemies[i].part.p -= sqrt(pow(1.6f, 2.0f) - glm::dot(knifeDist, knifeDist)) * glm::normalize(knifeDist);
+						*enemies[i].part.v +=
+							  log(1.0f+0.01f*glm::dot(*wrld.knf.part.v, *wrld.knf.part.v))
+							* glm::proj(*wrld.knf.part.v, *wrld.knf.part.p - *enemies[i].part.p)
+							- glm::proj(*enemies[i].part.v, *plr.part.p - *enemies[i].part.p);
+						enemies[i].part.v->y = -0.5*dmg;
 
-					newWorld.enemyHealth[i] -= 0.5*sqrt(glm::dot(newWorld.knife.velocity, newWorld.knife.velocity));
+						enemies[i].health -= 0.5*dmg;
 
-					//screen shake
-					auto randVector = glm::vec3((rand()%100-50)/100.0, (rand()%100-50)/100.0, (rand()%100-50)/100.0);
-					newWorld.cameraParticle.velocity = 0.05f*sqrt(glm::dot(newWorld.knife.velocity, newWorld.knife.velocity))*glm::normalize(randVector);
+						//screen shake
+						auto shake = glm::vec3((rand()%100-50)/100.0, (rand()%100-50)/100.0, (rand()%100-50)/100.0);
+						*wrld.cam.part.v = 0.5f*dmg*glm::normalize(shake);
 
-					if(newWorld.slowMoTimer < 0.0){
-						newWorld.slowMoTimer = 0.0;
-					}
-					newWorld.slowMoTimer += 0.005f*sqrt(glm::dot(newWorld.knife.velocity, newWorld.knife.velocity));
-					if(newWorld.slowMoTimer > 0.5){
-						newWorld.slowMoTimer = 0.5;
-					}
+						if(*wrld.slowMoTimer < 0.0){
+							*wrld.slowMoTimer = 0.0;
+						}
+						*wrld.slowMoTimer += 0.0005f*dmg;
+						if(*wrld.slowMoTimer > 0.5){
+							*wrld.slowMoTimer = 0.5;
+						}
 				}
 
-				auto playerDist = newWorld.playerPart.position - newWorld.enemies[i].position;
+				auto playerDist = *plr.part.p - *enemies[i].part.p;
 
 				if(glm::dot(playerDist, playerDist) < pow(2.0, 2)){
-					newWorld.playerPart.velocity.y = -10.0f;
+					plr.part.v->y = -10.0f;
 				}
 
-				newWorld.enemies[i].acceleration.y = 5.75;
-				
-				newWorld.enemies[i].velocity += newWorld.enemies[i].acceleration*dt;
-				newWorld.enemies[i].position += 0.5f*newWorld.enemies[i].acceleration*dt*dt+newWorld.enemies[i].velocity*dt;
+				enemies[i].part.a->y = 5.75;
+
+				enemies[i].part = particleLoop(enemies[i].part, dt);
+				enemies[i].part = ground(enemies[i].part, 0.0);
+			}
 			
-				if(newWorld.enemies[i].position.y >= 0.0){
-					newWorld.enemies[i].velocity.y = 0.0;
-					newWorld.enemies[i].position.y = 0.0;
-				}
-			}
-			else{
-				newWorld.enemies[i].acceleration.y = 5.75;
-
-				auto horVel = glm::vec2(newWorld.enemies[i].velocity.x, newWorld.enemies[i].velocity.z);
-
-				if(glm::dot(horVel, horVel) >= 0.01 || newWorld.enemies[i].position.y < 1.0) {
-					newWorld.enemies[i].velocity += newWorld.enemies[i].acceleration*dt;
-					newWorld.enemies[i].position += 0.5f*newWorld.enemies[i].acceleration*dt*dt+newWorld.enemies[i].velocity*dt;
-				}
-
-				if(newWorld.enemies[i].position.y >= 4.6){
-					newWorld.enemies[i].acceleration = -1.0f*newWorld.enemies[i].velocity;
-					newWorld.enemies[i].velocity.y = 10.0;
-					newWorld.enemies[i].position.y = 4.6;
-				}
-			}
+			*enemies[i].att = lookQuat(*plr.part.p, *enemies[i].part.p, glm::vec3(0.0, 1.0, 0.0));
 		}
-		return newWorld;
-	}
 
-	world rocketLoop(world oldWorld, float dt) {
-		auto newWorld = oldWorld;
-		for(int i = 0; i < 100; i++){
-			if(newWorld.rockets[i].position.y >= 100.0f){
-				continue;
-			}
-			newWorld.rockets[i] = particleLoop(newWorld.rockets[i], dt);
-		}
-		return newWorld;
+		return enemies;
 	}
 
 	world loop(world oldWorld){
@@ -377,22 +301,24 @@ namespace mainLoop{
 
 		float dt = 0.0090f;
 
-		newWorld.slowMoTimer -= dt;
+		*newWorld.slowMoTimer -= dt;
 
-		if(newWorld.slowMoTimer >= 0.0){
+		if(*newWorld.slowMoTimer >= 0.0){
 			dt *= 0.2;
-		}
+		};
 
 		//particle * player = &newWorld.parts[0];
 
 		float theta = input::mouse().y;
 		float phi = input::mouse().x;
 
-		newWorld.camera = glm::quat(cos(theta/2), sin(theta/2), 0.0, 0.0) * glm::quat(cos(phi/2), 0.0, sin(phi/2), 0.0);
+		newWorld.plr = playerLoop(newWorld, newWorld.plr, dt, phi, theta);
 
-		newWorld = playerLoop(newWorld, dt, phi, theta);
+		newWorld.cam = cameraLoop(newWorld.cam, *newWorld.plr.part.p, dt, phi, theta);
 
-		newWorld = enemiesLoop(newWorld, dt);
+		newWorld.knf = knifeLoop(newWorld, newWorld.knf, newWorld.plr, dt, phi, theta);
+
+		newWorld.enemies = enemyLoop(newWorld, newWorld.enemies, newWorld.plr, dt, phi, theta);
 
 		return newWorld;
 	}

@@ -220,42 +220,39 @@ namespace graphics{
 		glm::mat4 look;
 		glm::mat4 persp;
 
-		glm::vec3 * positions = mainLoop::getPositions(theWorld);
-		glm::mat4 * transforms = mainLoop::getTransforms(theWorld);
+		transformation = glm::mat4(1.0);
+		transformation[3].x = theWorld.cam.pos.x;
+		transformation[3].y = theWorld.cam.pos.y;
+		transformation[3].z = theWorld.cam.pos.z;
+		transformation[3].w = 1.0;
 
-		for(int e = 0; e < 203; e++){
-			int i = theWorld.modelIds[e];
-			if(i == -1){
-				transformation = glm::mat4(1.0);
-				transformation[3].x = positions[e].x;
-				transformation[3].y = positions[e].y;
-				transformation[3].z = positions[e].z;
-				transformation[3].w = 1.0;
+		rot = glm::mat4(1.0);
 
-				rot = glm::mat4(1.0);
+		transformation = transformation*rot;
 
-				transformation = transformation*rot;
+		look = glm::mat4_cast(theWorld.cam.att);
 
-				look = glm::mat4_cast(theWorld.camera);
-			}
+		for(int e = 0; e < n_models; e++){
+			int i = theWorld.models[e].id;
+
 			if(i < 0 || i > nObjs){
 				continue;
 			}
 			
 			glm::mat4 transformation1(1.0);
-			transformation1[3].x = -positions[e].x;
-			transformation1[3].y = -positions[e].y;
-			transformation1[3].z = -positions[e].z;
+			transformation1[3].x = -theWorld.models[e].pos.x;
+			transformation1[3].y = -theWorld.models[e].pos.y;
+			transformation1[3].z = -theWorld.models[e].pos.z;
 			transformation1[3].w = 1.0;
 
 			transformation1 = transformation1*transformation;
 
-			rot = transforms[e];//glm::mat4(1.0);
+			rot = glm::mat4_cast(theWorld.models[e].att);//glm::mat4(1.0);
 
 			transformation1 = transformation1*rot;
 			//rot = look*rot;
 
-			persp = glm::perspectiveFov(120.0, 1.6, 1.0, 0.1, 10000.0);//perspectiveFov is depreciated
+			persp = glm::perspectiveFov(120.0, 1.6, 1.0, 0.1, 10000.0);//perspectiveFov with degrees is depreciated
 
 			persp = persp*look*transformation1;
 
@@ -272,11 +269,9 @@ namespace graphics{
 			glUniformMatrix4fv(perspective, 1, GL_FALSE, &persp[0][0]);
 			glUniformMatrix4fv(bias, 1, GL_FALSE, &biasMat[0][0]);
 
-			glm::vec3 cam = theWorld.playerPart.position;
+			glUniform3fv(cameraPos, 1, &theWorld.cam.pos.x);
 
-			glUniform3fv(cameraPos, 1, &cam.x);
-
-			glm::vec3 wrldPos = -positions[e];
+			glm::vec3 wrldPos = -theWorld.models[e].pos;
 
 			glUniform3fv(worldPos, 1, &wrldPos.x);
 
