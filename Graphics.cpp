@@ -154,6 +154,74 @@ namespace graphics{
 			0.5, 0.5, 0.5, 1.0
 		);
 
+		if(1){
+			glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+			
+			glUseProgram(shadowProgram);
+
+			//transform = transform*lightTransform;
+			//TODO: move some crap outside for speedup// TODO: mabey done? check if the first TODO was completed
+
+			glViewport(0, 0, 2048, 2048);
+
+	        glClearDepth(1.0f);
+			glClear(GL_DEPTH_BUFFER_BIT);
+			
+			GLuint trans = glGetUniformLocation(shadowProgram, "transformation");
+
+			glm::mat4 rot;
+			glm::mat4 look;
+			glm::mat4 persp;
+
+			for(int e = 0; e < n_models; e++){
+				int i = theWorld.models[e].id;
+
+				if(i < 0 || i > nObjs){
+					continue;
+				}
+			
+				glm::mat4 lightTransform(
+					1.0, 0.0, 0.0, 1.0,
+					0.0, 1.0, 0.0, 0.0,
+					0.0, 0.0, 1.0, 15.0,
+					0.0, 0.0, 0.0, 1.0
+				);
+
+				glm::mat4 transformation1(1.0);
+				transformation1[3].x = -theWorld.models[e].pos.x;
+				transformation1[3].y = -theWorld.models[e].pos.y;
+				transformation1[3].z = -theWorld.models[e].pos.z;
+				transformation1[3].w = 1.0;
+
+				//transformation1 = transformation1*transformation;
+
+				rot = glm::mat4_cast(theWorld.models[e].att);//glm::mat4(1.0);
+
+				transformation1 = transformation1*rot;
+
+				glm::mat4 shadowPersp = glm::ortho<float>(-10.0, 10.0, -10.0, 10.0, -10.0, 20.0);
+				glm::mat4 lookMat = glm::lookAt(glm::vec3(0.0, 0.0, 0.0), -glm::vec3(1.0, 15.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+				glm::mat4 depthModelMatrix = glm::mat4(1.0);
+				glm::mat4 transform = shadowPersp * lookMat * transformation1;
+
+				biasMat = biasMat*transform;
+
+				glBindVertexArray(objects[i].vertexArrayObject);
+
+				glBindBuffer(GL_ARRAY_BUFFER, objects[i].vertexBufferObject);
+				glEnableVertexAttribArray(0);
+				glDisableVertexAttribArray(1);
+				glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
+
+				glUniformMatrix4fv(trans, 1, GL_FALSE, &transform[0][0]);
+
+				glDrawElements(GL_TRIANGLES, objects[i].data.indexSize, GL_UNSIGNED_SHORT, 0);
+				glBindVertexArray(0);
+			}
+		
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
+
 		GLuint modelToWorld = glGetUniformLocation(program, "modelToWorld");
 		GLuint rotation = glGetUniformLocation(program, "rotation");
 		GLuint perspective = glGetUniformLocation(program, "perspective");
@@ -162,50 +230,6 @@ namespace graphics{
 		GLuint cameraPos = glGetUniformLocation(program, "cameraPos");
 		
 		GLuint worldPos = glGetUniformLocation(program, "worldPosition");
-
-		//if(0){
-		//	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-		//	
-		//	glUseProgram(shadowProgram);
-
-		//	glm::mat4 lightTransform(
-		//		1.0, 0.0, 0.0, 1.0,
-		//		0.0, 1.0, 0.0, 0.0,
-		//		0.0, 0.0, 1.0, 15.0,
-		//		0.0, 0.0, 0.0, 1.0
-		//	);
-
-		//	glm::mat4 shadowPersp = glm::ortho<float>(-10.0, 10.0, -10.0, 10.0, -10.0, 20.0);
-		//	glm::mat4 lookMat = glm::lookAt(glm::vec3(0.0, 0.0, 0.0), -glm::vec3(10.0, 0.0, 15.0), glm::vec3(0.0, 1.0, 0.0));
-		//	glm::mat4 depthModelMatrix = glm::mat4(1.0);
-		//	glm::mat4 transform = shadowPersp * lookMat * rot;// * transformation;
-
-		//	biasMat = biasMat*transform;
-
-		//	//transform = transform*lightTransform;
-		//	//TODO: move some crap outside for speedup// TODO: mabey done? check if the first TODO was completed
-
-		//	glViewport(0, 0, 2048, 2048);
-
-	 //       glClearDepth(1.0f);
-		//	glClear(GL_DEPTH_BUFFER_BIT);
-		//	
-		//	GLuint trans = glGetUniformLocation(shadowProgram, "transformation");
-
-		//	glBindVertexArray(objects[0].vertexArrayObject);
-
-		//	glBindBuffer(GL_ARRAY_BUFFER, objects[0].vertexBufferObject);
-		//	glEnableVertexAttribArray(0);
-		//	glDisableVertexAttribArray(1);
-		//	glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
-		//	glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, (void*)(objects[0].data.vertexSize*sizeof(objects[0].data.vertexData[0])/2));
-
-		//	glUniformMatrix4fv(trans, 1, GL_FALSE, &transform[0][0]);
-		//	glDrawElements(GL_TRIANGLES, objects[0].data.indexSize, GL_UNSIGNED_SHORT, 0);
-		//	glBindVertexArray(0);
-		//
-		//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		//}
 
 		glViewport(0, 0, 1920, 1200);
 

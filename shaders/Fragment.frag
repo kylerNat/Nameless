@@ -64,7 +64,7 @@ void main(){
 	lighting = 1.0*texture(shadowMap, shadowPosition.xyz);
 */
 	if(texture(shadowMap, shadowPosition.xy).x < -tolerance+shadowPosition.z){
-		//lighting = 0.0;
+		lighting = 0.0;
 		//gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 		//return;
 	}
@@ -154,10 +154,11 @@ void main(){
 	gl_FragColor *= 0.75;
 	//gl_FragColor.xyz = normalize(cameraPos-fragPosition);
 	//gl_FragColor += vec4(1.0, 0.0, 0.0, 0.0)*(1-lighting);
-/*
+	
+	/*
 	vec2 texcoord = vec2((1.0/1024.0)*(gl_FragCoord.x-500), (1.0/1024.0)*gl_FragCoord.y);
 	gl_FragColor = mix(vec4(1.0, 0.0, 0.0, 1.0), vec4(0.0, 0.0, 0.0, 1.0), (1.0/1200.0)*gl_FragCoord.y)+mix(vec4(0.0, 0.0, 1.0, 0.0), vec4(0.0, 0.0, 0.0, 1.0), (1.0/1920.0)*gl_FragCoord.x);
-	gl_FragColor = mix(vec4(1.0, 1.0, 1.0, 1.0), vec4(0.0, 0.0, 0.0, 1.0), texture(shadowMap, shadowPosition.xy).x);//texture2D(shadowMap, texcoord).x );
+	gl_FragColor = mix(vec4(1.0, 1.0, 1.0, 1.0), vec4(0.0, 0.0, 0.0, 1.0), texture(shadowMap, (1.0/1000.0)*gl_FragCoord.xy).x);//texture2D(shadowMap, texcoord).x );
 	//gl_FragColor = texture2D(shadowMap, texcoord);
-*/
+	*/
 }

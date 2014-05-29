@@ -8,7 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <time.h>
 
-#define n_models 102
+#define n_models 202
 #define gravity 3.8
 
 struct particle {//a position, velocity, and acceleration
@@ -57,6 +57,13 @@ struct model {
 	glm::quat att;
 };
 
+struct rocket {
+	bool exploded;
+	float explosionTimer;
+	particle part;
+	glm::quat * att;
+};
+
 struct world {
 	float * slowMoTimer;
 	bool * shaking;
@@ -64,6 +71,7 @@ struct world {
 	player plr;
 	knife knf;
 	enemy * enemies;
+	rocket * rkts;
 	model * models;
 };
 
