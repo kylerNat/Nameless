@@ -8,6 +8,7 @@
 //#define WGL_ARB_extensions_string
 #include <GL/glew.h>
 #include <GL/wglew.h>
+#include <time.h>
 
 //temp
 #include "Files.h"

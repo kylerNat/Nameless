@@ -136,97 +136,16 @@ namespace graphics{
 	}
 
 	float theta = 0;//3.14;
-	void draw(HDC dc, GLuint program, GLuint shadowProgram, vertexObject * objects, size_t nObjs, GLuint shadowMap, GLuint framebuffer, const world theWorld){//TODO: add render data(probably a VBO list) as an imput // do swap buffers stuff
+	void draw(HDC dc, GLuint program, vertexObject * objects, size_t nObjs, const world theWorld){//TODO: add render data(probably a VBO list) as an imput // do swap buffers stuff
 		//TODO: fix leaks
 		//TODO: redo shaders
-		
-		glClearColor(0.7, 0.8, 1.0, 1.0);
-        glClearDepth(1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//TODO: add animation, gui, color, and texture(possibly procedural textures) support
 
 		//temp
-
-
-		glm::mat4 biasMat(
-			0.5, 0.0, 0.0, 0.0,
-			0.0, 0.5, 0.0, 0.0,
-			0.0, 0.0, 0.5, 0.0,
-			0.5, 0.5, 0.5, 1.0
-		);
-
-		if(1){
-			glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-			
-			glUseProgram(shadowProgram);
-
-			//transform = transform*lightTransform;
-			//TODO: move some crap outside for speedup// TODO: mabey done? check if the first TODO was completed
-
-			glViewport(0, 0, 2048, 2048);
-
-	        glClearDepth(1.0f);
-			glClear(GL_DEPTH_BUFFER_BIT);
-			
-			GLuint trans = glGetUniformLocation(shadowProgram, "transformation");
-
-			glm::mat4 rot;
-			glm::mat4 look;
-			glm::mat4 persp;
-
-			for(int e = 0; e < n_models; e++){
-				int i = theWorld.models[e].id;
-
-				if(i < 0 || i > nObjs){
-					continue;
-				}
-			
-				glm::mat4 lightTransform(
-					1.0, 0.0, 0.0, 1.0,
-					0.0, 1.0, 0.0, 0.0,
-					0.0, 0.0, 1.0, 15.0,
-					0.0, 0.0, 0.0, 1.0
-				);
-
-				glm::mat4 transformation1(1.0);
-				transformation1[3].x = -theWorld.models[e].pos.x;
-				transformation1[3].y = -theWorld.models[e].pos.y;
-				transformation1[3].z = -theWorld.models[e].pos.z;
-				transformation1[3].w = 1.0;
-
-				//transformation1 = transformation1*transformation;
-
-				rot = glm::mat4_cast(theWorld.models[e].att);//glm::mat4(1.0);
-
-				transformation1 = transformation1*rot;
-
-				glm::mat4 shadowPersp = glm::ortho<float>(-10.0, 10.0, -10.0, 10.0, -10.0, 20.0);
-				glm::mat4 lookMat = glm::lookAt(glm::vec3(0.0, 0.0, 0.0), -glm::vec3(1.0, 15.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-				glm::mat4 depthModelMatrix = glm::mat4(1.0);
-				glm::mat4 transform = shadowPersp * lookMat * transformation1;
-
-				biasMat = biasMat*transform;
-
-				glBindVertexArray(objects[i].vertexArrayObject);
-
-				glBindBuffer(GL_ARRAY_BUFFER, objects[i].vertexBufferObject);
-				glEnableVertexAttribArray(0);
-				glDisableVertexAttribArray(1);
-				glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
-
-				glUniformMatrix4fv(trans, 1, GL_FALSE, &transform[0][0]);
-
-				glDrawElements(GL_TRIANGLES, objects[i].data.indexSize, GL_UNSIGNED_SHORT, 0);
-				glBindVertexArray(0);
-			}
-		
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		}
 
 		GLuint modelToWorld = glGetUniformLocation(program, "modelToWorld");
 		GLuint rotation = glGetUniformLocation(program, "rotation");
 		GLuint perspective = glGetUniformLocation(program, "perspective");
-		GLuint shadowMape = glGetUniformLocation(program, "shadowMap");
-		GLuint bias = glGetUniformLocation(program, "biasMat");
 		GLuint cameraPos = glGetUniformLocation(program, "cameraPos");
 		
 		GLuint worldPos = glGetUniformLocation(program, "worldPosition");
@@ -291,7 +210,6 @@ namespace graphics{
 			glUniformMatrix4fv(modelToWorld, 1, GL_FALSE, &transformation1[0][0]);
 			glUniformMatrix4fv(rotation, 1, GL_FALSE, &rot[0][0]);
 			glUniformMatrix4fv(perspective, 1, GL_FALSE, &persp[0][0]);
-			glUniformMatrix4fv(bias, 1, GL_FALSE, &biasMat[0][0]);
 
 			glUniform3fv(cameraPos, 1, &theWorld.cam.pos.x);
 
@@ -299,9 +217,6 @@ namespace graphics{
 
 			glUniform3fv(worldPos, 1, &wrldPos.x);
 
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, shadowMap);
-			glUniform1i(shadowMape, 0);
 			glDrawElements(GL_TRIANGLES, objects[i].data.indexSize, GL_UNSIGNED_SHORT, 0);
 			glBindVertexArray(0);
 		}

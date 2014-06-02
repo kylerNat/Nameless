@@ -35,5 +35,5 @@ namespace graphics {
 
 	extern int init();
 
-	extern void draw(HDC dc, GLuint program, GLuint shadowProgram, vertexObject * objects, size_t nObjs, GLuint shadowMap, GLuint framebuffer, world theWorld);
+	extern void draw(HDC dc, GLuint program, vertexObject * objects, size_t nObjs, world theWorld);
 }

@@ -8,8 +8,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <time.h>
 
-#define n_models 202
-#define gravity 3.8
+#define n_models 203
+#define gravity 20.0
 
 struct particle {//a position, velocity, and acceleration
 	glm::vec3 * p;
@@ -48,7 +48,7 @@ struct knife {
 struct enemy {
 	particle part;
 	glm::quat * att;
-	float health;
+	float * health;
 };
 
 struct model {
@@ -62,6 +62,13 @@ struct rocket {
 	float explosionTimer;
 	particle part;
 	glm::quat * att;
+	unsigned int * modelId;
+};
+
+struct rocketLauncher {
+	bool shot;
+	particle part;
+	glm::quat * att;
 };
 
 struct world {
@@ -72,6 +79,7 @@ struct world {
 	knife knf;
 	enemy * enemies;
 	rocket * rkts;
+	rocketLauncher rL;
 	model * models;
 };
 
@@ -83,7 +91,9 @@ namespace mainLoop {
 	extern glm::vec3 * getPositions(world theWorld);
 	extern glm::mat4 * getTransforms(world theWorld);
 
-	extern world loop(world oldWorld);
+	extern world loop(world oldWorld, float dt);
+
+	extern bool blowUp(particle p, float dt, rocket * rkts);
 
 	extern player playerLoop(world oldWorld, float dt, float phi, float theta);
 }

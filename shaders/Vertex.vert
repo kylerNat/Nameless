@@ -7,12 +7,10 @@ layout (location = 1) in vec3 normal;
 smooth out vec4 fragColor;
 smooth out vec3 fragPosition;
 smooth out vec3 fragNormal;
-smooth out vec3 shadowPosition;
 
 uniform mat4 modelToWorld;
 uniform mat4 rotation;
 uniform mat4 perspective;
-uniform mat4 biasMat;
 uniform vec3 worldPosition;
 
 void main() {
@@ -23,7 +21,6 @@ void main() {
 	gl_Position.xyz = position;
 	gl_Position.w = 1.0;
 	fragPosition = position + worldPosition;
-	shadowPosition = (biasMat*vec4(position, 1.0)).xyz;
 	gl_Position = perspective*gl_Position;
 
 	fragColor = color;
