@@ -17,7 +17,7 @@ void main() {
 	vec4 nw = vec4(1.0);
 	nw.xyz = normal;
 	nw = rotation*nw;
-	vec4 color = vec4(0.2, 0.2, 0.2, 1.0);
+	vec4 color = vec4(0.8, 0.8, 0.8, 1.0);
 	gl_Position.xyz = position;
 	gl_Position.w = 1.0;
 	fragPosition = position + worldPosition;

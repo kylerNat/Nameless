@@ -55,6 +55,8 @@ struct model {
 	unsigned int id;
 	glm::vec3 pos;
 	glm::quat att;
+	float m;
+	glm::vec4 color;
 };
 
 struct rocket {

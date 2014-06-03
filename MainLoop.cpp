@@ -37,10 +37,14 @@ namespace mainLoop{
 		newWorld.models[0].id = 1;
 		newWorld.models[0].pos = glm::vec3(0.0, 0.0, 0.0);
 		newWorld.models[0].att = glm::quat();
+		newWorld.models[0].m = 0.9;
+		newWorld.models[0].color = glm::vec4(0.6, 0.4, 0.3, 1.0);
 
 		newWorld.models[1].id = 2;
 		newWorld.models[1].pos = glm::vec3(0.0, 0.0, 0.0);
-		newWorld.models[1].att = glm::quat();
+		newWorld.models[1].att = glm::quat();	
+		newWorld.models[1].m = 0.625;
+		newWorld.models[1].color = glm::vec4(0.2, 0.2, 0.2, 1.0);
 		newWorld.knf.part.p = &newWorld.models[1].pos;
 		newWorld.knf.att = &newWorld.models[1].att;
 
@@ -49,6 +53,8 @@ namespace mainLoop{
 			newWorld.models[2+i].id = 3;
 			newWorld.models[2+i].pos = glm::vec3(0.0, 0.0, 0.0);
 			newWorld.models[2+i].att = glm::quat();
+			newWorld.models[2+i].m = 1.0;
+			newWorld.models[2+i].color = glm::vec4(0.4, 0.3, 0.2, 1.0);
 			newWorld.enemies[i].part.p = &newWorld.models[2+i].pos;
 			newWorld.enemies[i].att = &newWorld.models[2+i].att;
 			newWorld.enemies[i].health = new float();
@@ -61,6 +67,8 @@ namespace mainLoop{
 			newWorld.models[102+i].id = 0;
 			newWorld.models[102+i].pos = glm::vec3(0.0, 0.0, 0.0);
 			newWorld.models[102+i].att = glm::quat();
+			newWorld.models[102+i].m = 0.625;
+			newWorld.models[102+i].color = glm::vec4(0.2, 0.2, 0.1, 1.0);
 			newWorld.rkts[i].part.p = &newWorld.models[102+i].pos;
 			newWorld.rkts[i].att = &newWorld.models[102+i].att;
 			
@@ -72,6 +80,8 @@ namespace mainLoop{
 		newWorld.models[202].id = 5;
 		newWorld.models[202].pos = glm::vec3(0.0, 0.0, 0.0);
 		newWorld.models[202].att = glm::quat();
+		newWorld.models[202].m = 0.625;
+		newWorld.models[202].color = glm::vec4(0.2, 0.2, 0.1, 1.0);
 		newWorld.rL.part.p = &newWorld.models[202].pos;
 		newWorld.rL.att = &newWorld.models[202].att;
 
@@ -195,10 +205,10 @@ namespace mainLoop{
 		
 		if(input::pressed(VK_RBUTTON)){
 			if(!knf.switching){
-				*knf.part.v = glm::proj(*knf.part.v, glm::vec3(-sin(phi)*cos(theta), sin(theta), cos(phi)*cos(theta)));
-				knf.part.v->x = 3.0*(knf.onRight ? 1.0 : -1.0)*cos(phi);
+				//*knf.part.v = glm::proj(*knf.part.v, glm::vec3(-sin(phi)*cos(theta), sin(theta), cos(phi)*cos(theta)));
+				knf.part.v->x += 3.0*(knf.onRight ? 1.0 : -1.0)*cos(phi);
 				knf.part.v->y = -9.0;
-				knf.part.v->z = 3.0*(knf.onRight ? 1.0 : -1.0)*sin(phi);
+				knf.part.v->z += 3.0*(knf.onRight ? 1.0 : -1.0)*sin(phi);
 				(*knf.part.v) += (*plr.part.v);
 
 				knf.onRight = !knf.onRight;
@@ -206,32 +216,33 @@ namespace mainLoop{
 			knf.switching = true;
 		}
 
-		
-		if(input::pressed(VK_LBUTTON)){
-			knf.angle -= 9.0*dt*knf.angle/abs(knf.angle);
-			arm = 7.5f*glm::vec3(-sin(phi+knf.angle)*cos(theta), sin(theta), cos(phi+knf.angle)*cos(theta));
-			if(!(*wrld.shaking)){
-				auto randVector = glm::vec3((rand()%100-50)/100.0, (rand()%100-50)/100.0, (rand()%100-50)/100.0);
-				//newWorld.knife.velocity = 50.0f*lookDir;//glm::normalize(randVector);
-				*wrld.cam.part.v += /*10.0f*lookDir+*/5.0f*glm::normalize(randVector);
-				*wrld.cam.part.v -= exp(-glm::dot((*knf.part.v), (*knf.part.v))*1.0f)*(*knf.part.v);
-			}
-			*wrld.shaking = true;
-		}
-		else {
-			*wrld.shaking = false;
-			arm = 2.5f*glm::vec3(-sin(phi+knf.angle)*cos(theta+0.5), sin(theta+0.5), cos(phi+knf.angle)*cos(theta+0.5));
-
-			if(abs(knf.angle) < 1.04 && glm::cross((*plr.part.p+arm)-(*knf.part.p), glm::vec3(0.0, 1.0, 0.0)) != glm::vec3(0.0, 0.0, 0.0)){
-				*knf.part.v += 45.0f*glm::normalize(glm::cross((*plr.part.p+arm)-(*knf.part.p), glm::vec3(0.0, (knf.onRight ? 1.0f : -1.0f), 0.0)));
-			}
-			/*if(abs(knf.angle) < 1.05) {
-				knf.angle += 3.0*dt*knf.angle/abs(knf.angle);
+		if(!knf.switching){
+			if(input::pressed(VK_LBUTTON)){
+				knf.angle -= 9.0*dt*knf.angle/abs(knf.angle);
+				arm = 7.5f*glm::vec3(-sin(phi+knf.angle)*cos(theta), sin(theta), cos(phi+knf.angle)*cos(theta));
+				if(!(*wrld.shaking)){
+					auto randVector = glm::vec3((rand()%100-50)/100.0, (rand()%100-50)/100.0, (rand()%100-50)/100.0);
+					//newWorld.knife.velocity = 50.0f*lookDir;//glm::normalize(randVector);
+					*wrld.cam.part.v += /*10.0f*lookDir+*/5.0f*glm::normalize(randVector);
+					*wrld.cam.part.v -= exp(-glm::dot((*knf.part.v), (*knf.part.v))*1.0f)*(*knf.part.v);
+				}
+				*wrld.shaking = true;
 			}
 			else {
+				*wrld.shaking = false;
+				arm = 2.5f*glm::vec3(-sin(phi+knf.angle)*cos(theta+0.5), sin(theta+0.5), cos(phi+knf.angle)*cos(theta+0.5));
+
+				if(abs(knf.angle) < 1.04 && glm::cross((*plr.part.p+arm)-(*knf.part.p), glm::vec3(0.0, 1.0, 0.0)) != glm::vec3(0.0, 0.0, 0.0)){
+					*knf.part.v += 45.0f*glm::normalize(glm::cross((*plr.part.p+arm)-(*knf.part.p), glm::vec3(0.0, (knf.onRight ? 1.0f : -1.0f), 0.0)));
+				}
+				/*if(abs(knf.angle) < 1.05) {
+					knf.angle += 3.0*dt*knf.angle/abs(knf.angle);
+				}
+				else {
+					knf.angle = 1.05*(knf.onRight ? 1.0 : -1.0);
+				}*/
 				knf.angle = 1.05*(knf.onRight ? 1.0 : -1.0);
-			}*/
-			knf.angle = 1.05*(knf.onRight ? 1.0 : -1.0);
+			}
 		}
 
 		if(!knf.switching){

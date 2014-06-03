@@ -28,7 +28,7 @@ float fresnel(vec3 position, vec3 normal, vec3 lightIn){
 }
 
 float beckmann(vec3 position, vec3 normal,vec3 lightIn){
-	float m = 0.325;//rms slope = sqrt(mean (slope^2))
+	float m = 0.025;//rms slope = sqrt(mean (slope^2))
 
 	if(m == 0.0){
 		return 0.0;
