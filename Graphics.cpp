@@ -2,6 +2,43 @@
 
 namespace graphics{
 
+	vertexObject bindVO(vertexObject vO){
+		glBindVertexArray(vO.vertexArrayObject);
+		glBindBuffer(GL_ARRAY_BUFFER, vO.vertexBufferObject);
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
+		glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, (void*)(vO.data.vertexSize*sizeof(vO.data.vertexData[0])*3/11));
+		glVertexAttribPointer(2, 2, GL_FLOAT, 0, 0, (void*)(vO.data.vertexSize*sizeof(vO.data.vertexData[0])*6/11));
+		glVertexAttribPointer(3, 3, GL_FLOAT, 0, 0, (void*)(vO.data.vertexSize*sizeof(vO.data.vertexData[0])*8/11));
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vO.indexBufferObject);
+		return vO;
+	}
+
+	vertexObject createVertexObject(files::modelData data){
+		vertexObject vO;
+		vO.data = data;
+
+		glGenBuffers(1, &vO.vertexBufferObject);
+		glBindBuffer(GL_ARRAY_BUFFER, vO.vertexBufferObject);
+		glBufferData(GL_ARRAY_BUFFER, vO.data.vertexSize*sizeof(vO.data.vertexData[0]), vO.data.vertexData, GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glGenBuffers(1, &vO.indexBufferObject);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vO.indexBufferObject);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER,vO. data.indexSize*sizeof(vO.data.indexData[0]), vO.data.indexData, GL_STATIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		glGenVertexArrays(1, &vO.vertexArrayObject);
+
+		vO = bindVO(vO);
+		glBindVertexArray(0);
+
+		return vO;
+	}
+
     GLuint createShader(const GLenum eShaderType, const char * shaderSource){
         GLuint shader = glCreateShader(eShaderType);
 
@@ -143,12 +180,15 @@ namespace graphics{
 
 		//temp
 
-		GLuint modelToWorld = glGetUniformLocation(program, "modelToWorld");
-		GLuint rotation = glGetUniformLocation(program, "rotation");
+		GLuint normalTransform = glGetUniformLocation(program, "normalTransform");
 		GLuint perspective = glGetUniformLocation(program, "perspective");
 		GLuint cameraPos = glGetUniformLocation(program, "cameraPos");
 		
 		GLuint worldPos = glGetUniformLocation(program, "worldPosition");
+
+		GLuint m = glGetUniformLocation(program, "m");
+
+		GLuint lights = glGetUniformLocation(program, "lights");
 
 		glViewport(0, 0, 1920, 1200);
 
@@ -175,6 +215,17 @@ namespace graphics{
 
 		look = glm::mat4_cast(theWorld.cam.att);
 
+		glm::vec3 lits[3] = {
+			//glm::vec3(16.0, 100.0, -145.0),
+			//glm::vec3(56.0, 10.0, 145.0),
+			//glm::vec3(59.0, 1.0, 0.0),
+			glm::vec3(10.0, -1.0, 100.0),
+			glm::vec3(10.0, -1.0, 100.0),
+			glm::vec3(10.0, -1.0, 100.0),
+		};
+
+		glUniform3fv(lights, 3, (GLfloat*) &lits[0]);
+
 		for(int e = 0; e < n_models; e++){
 			int i = theWorld.models[e].id;
 
@@ -199,16 +250,11 @@ namespace graphics{
 
 			persp = persp*look*transformation1;
 
-			glBindVertexArray(objects[i].vertexArrayObject);
+			objects[i] = bindVO(objects[i]);
 
-			glBindBuffer(GL_ARRAY_BUFFER, objects[i].vertexBufferObject);
-			glEnableVertexAttribArray(0);
-			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
-			glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, (void*)(objects[i].data.vertexSize*sizeof(objects[i].data.vertexData[0])/2));
-
-			glUniformMatrix4fv(modelToWorld, 1, GL_FALSE, &transformation1[0][0]);
-			glUniformMatrix4fv(rotation, 1, GL_FALSE, &rot[0][0]);
+			glUniform1f(m, theWorld.models[e].m);
+			
+			glUniformMatrix4fv(normalTransform, 1, GL_FALSE, &rot[0][0]);
 			glUniformMatrix4fv(perspective, 1, GL_FALSE, &persp[0][0]);
 
 			glUniform3fv(cameraPos, 1, &theWorld.cam.pos.x);

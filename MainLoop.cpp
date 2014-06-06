@@ -37,14 +37,12 @@ namespace mainLoop{
 		newWorld.models[0].id = 1;
 		newWorld.models[0].pos = glm::vec3(0.0, 0.0, 0.0);
 		newWorld.models[0].att = glm::quat();
-		newWorld.models[0].m = 0.9;
-		newWorld.models[0].color = glm::vec4(0.6, 0.4, 0.3, 1.0);
+		newWorld.models[0].m = 0.0;
 
 		newWorld.models[1].id = 2;
 		newWorld.models[1].pos = glm::vec3(0.0, 0.0, 0.0);
 		newWorld.models[1].att = glm::quat();	
-		newWorld.models[1].m = 0.625;
-		newWorld.models[1].color = glm::vec4(0.2, 0.2, 0.2, 1.0);
+		newWorld.models[1].m = 0.325;
 		newWorld.knf.part.p = &newWorld.models[1].pos;
 		newWorld.knf.att = &newWorld.models[1].att;
 
@@ -53,8 +51,7 @@ namespace mainLoop{
 			newWorld.models[2+i].id = 3;
 			newWorld.models[2+i].pos = glm::vec3(0.0, 0.0, 0.0);
 			newWorld.models[2+i].att = glm::quat();
-			newWorld.models[2+i].m = 1.0;
-			newWorld.models[2+i].color = glm::vec4(0.4, 0.3, 0.2, 1.0);
+			newWorld.models[2+i].m = 0.025;
 			newWorld.enemies[i].part.p = &newWorld.models[2+i].pos;
 			newWorld.enemies[i].att = &newWorld.models[2+i].att;
 			newWorld.enemies[i].health = new float();
@@ -67,8 +64,7 @@ namespace mainLoop{
 			newWorld.models[102+i].id = 0;
 			newWorld.models[102+i].pos = glm::vec3(0.0, 0.0, 0.0);
 			newWorld.models[102+i].att = glm::quat();
-			newWorld.models[102+i].m = 0.625;
-			newWorld.models[102+i].color = glm::vec4(0.2, 0.2, 0.1, 1.0);
+			newWorld.models[102+i].m = 0.325;
 			newWorld.rkts[i].part.p = &newWorld.models[102+i].pos;
 			newWorld.rkts[i].att = &newWorld.models[102+i].att;
 			
@@ -80,13 +76,12 @@ namespace mainLoop{
 		newWorld.models[202].id = 5;
 		newWorld.models[202].pos = glm::vec3(0.0, 0.0, 0.0);
 		newWorld.models[202].att = glm::quat();
-		newWorld.models[202].m = 0.625;
-		newWorld.models[202].color = glm::vec4(0.2, 0.2, 0.1, 1.0);
+		newWorld.models[202].m = 0.325;
 		newWorld.rL.part.p = &newWorld.models[202].pos;
 		newWorld.rL.att = &newWorld.models[202].att;
 
 		newWorld.slowMoTimer = new float();
-		*newWorld.slowMoTimer = 1.0f;
+		*newWorld.slowMoTimer = 0.0f;
 
 		newWorld.shaking = new bool();
 
@@ -174,7 +169,7 @@ namespace mainLoop{
 					plr.part.v->y = -15.0;
 				}
 				else{
-					(*plr.part.a) -= 3.0f*(*plr.part.v);
+					(*plr.part.a) -= 30.0f*(*plr.part.v);
 				}
 			}
 		}
@@ -232,7 +227,7 @@ namespace mainLoop{
 				*wrld.shaking = false;
 				arm = 2.5f*glm::vec3(-sin(phi+knf.angle)*cos(theta+0.5), sin(theta+0.5), cos(phi+knf.angle)*cos(theta+0.5));
 
-				if(abs(knf.angle) < 1.04 && glm::cross((*plr.part.p+arm)-(*knf.part.p), glm::vec3(0.0, 1.0, 0.0)) != glm::vec3(0.0, 0.0, 0.0)){
+				if(abs(knf.angle) < 1.04 && glm::cross((*plr.part.p+arm)-(*knf.part.p), glm::vec3(0.0, (knf.onRight ? 1.0f : -1.0f), 0.0)) != glm::vec3(0.0, 0.0, 0.0)){
 					*knf.part.v += 45.0f*glm::normalize(glm::cross((*plr.part.p+arm)-(*knf.part.p), glm::vec3(0.0, (knf.onRight ? 1.0f : -1.0f), 0.0)));
 				}
 				/*if(abs(knf.angle) < 1.05) {
@@ -337,7 +332,7 @@ namespace mainLoop{
 						if(glm::dot(lookDir, relFactor) < 0.0){
 							relFactor = glm::vec3(0.0);
 						}
-						rkts[i] = createRocket(rkts[i], *rL.part.p, 20.0f*lookDir+relFactor);
+						rkts[i] = createRocket(rkts[i], *rL.part.p, 80.0f*lookDir+relFactor);
 						*rL.part.v -= 20.0f*lookDir+relFactor;
 							
 						auto randVector = glm::vec3((rand()%100-50)/100.0, (rand()%100-50)/100.0, (rand()%100-50)/100.0+glm::dot(*rL.part.v-*wrld.plr.part.v, lookDir)/sqrt(glm::dot(lookDir, lookDir)));
@@ -356,7 +351,7 @@ namespace mainLoop{
 						if(glm::dot(-lookDir, relFactor) < 0.0){
 							relFactor = glm::vec3(0.0);
 						}
-						rkts[i] = createRocket(rkts[i], *rL.part.p, 20.0f*-lookDir+relFactor);
+						rkts[i] = createRocket(rkts[i], *rL.part.p, 80.0f*-lookDir+relFactor);
 						*rL.part.v -= -30.0f*lookDir+relFactor;
 							
 						auto randVector = glm::vec3((rand()%100-50)/100.0, (rand()%100-50)/100.0, (rand()%100-50)/100.0+glm::dot(*rL.part.v-*wrld.plr.part.v, lookDir)/sqrt(glm::dot(lookDir, lookDir)));
@@ -410,27 +405,28 @@ namespace mainLoop{
 					auto lookDir = glm::vec3(sin(phi), 0.0, cos(phi));
 					*enemies[i].part.a = 1.0f*(speed*glm::normalize(*plr.part.p - *enemies[i].part.p) - *enemies[i].part.v);
 					bool lookedAtMeFunny = (glm::dot(glm::normalize(lookDir), glm::normalize(*enemies[i].part.p-*plr.part.p)) <= 0.005*i+0.5 && glm::dot(*plr.part.p - *enemies[i].part.p, *plr.part.p - *enemies[i].part.p) <= pow(8.0, 2));
-					if(glm::dot(knifeDist, knifeDist) < pow(1.6+1.0, 2) || lookedAtMeFunny){
+					if(glm::dot(knifeDist, knifeDist) < pow(1.6+1.0, 2) || lookedAtMeFunny){//improve knife dodging
 						*enemies[i].part.a = 2.0f*((i & 1) ? 1 : -1)*(speed*glm::normalize(glm::cross(*wrld.plr.part.p - *enemies[i].part.p, glm::vec3(0.0, 1.0, 0.0)) - *enemies[i].part.v));
 						if(lookedAtMeFunny){
 							*enemies[i].part.a -= 1.0f*(speed*glm::normalize(*plr.part.p - *enemies[i].part.p) - *enemies[i].part.v);
 						}
 					}
 
-					glm::vec3 rockPoss = glm::vec3(0.0);
-					int nRockets = 0;
-					for(int r = 0; r < 10; r++){//eats frames //TODO:make list of living rockets at the start of the main loop or in the rocket loop, maybe a run length encoded list// or mabey just decrease the number of rockets
+					glm::vec3 rockPos = glm::vec3(0.0);
+					bool dodgeRocket = false;
+					for(int r = 0; r < 100; r++){//eats frames //TODO:make list of living rockets at the start of the main loop or in the rocket loop, maybe a run length encoded list// or mabey just decrease the number of rockets
 						auto rocketDist = *wrld.rkts[r].part.p - *enemies[i].part.p;
-						if(glm::dot(glm::normalize(-rocketDist), glm::normalize(*wrld.rkts[r].part.v)) > cos(0.01*i) && wrld.rkts[r].explosionTimer > 0.0){
-							rockPoss += *wrld.rkts[r].part.p;
-							nRockets++;
-							break;
+						if(wrld.rkts[r].explosionTimer > 0.0 && glm::dot(glm::normalize(-rocketDist), glm::normalize(*wrld.rkts[r].part.v)) > cos(0.01*i)){
+							dodgeRocket = true;
+							if(glm::dot(rocketDist, rocketDist) < glm::dot(rockPos - *enemies[i].part.p, rockPos - *enemies[i].part.p)){
+								rockPos = *wrld.rkts[r].part.p;
+								break;
+							}
 						}
 					}
-					if(nRockets > 0){
-						glm::vec3 avgRock = rockPoss/((float) nRockets);
+					if(dodgeRocket){
 						auto sideDir = glm::normalize(glm::cross(*wrld.plr.part.p - *enemies[i].part.p, glm::vec3(0.0, 1.0, 0.0)));
-						*enemies[i].part.a = 2.0f*((glm::dot(avgRock - *enemies[i].part.p, sideDir) < 0.0 ? 1 : -1)*speed*sideDir - *enemies[i].part.v);
+						*enemies[i].part.a = 2.0f*((glm::dot(rockPos - *enemies[i].part.p, sideDir) < 0.0 ? 1 : -1)*speed*sideDir - *enemies[i].part.v);
 					}
 				}
 
@@ -530,13 +526,13 @@ namespace mainLoop{
 
 		newWorld.cam = cameraLoop(newWorld.cam, *newWorld.plr.part.p, dt, phi, theta);
 
-		newWorld.knf = knifeLoop(newWorld, newWorld.knf, newWorld.plr, dt, phi, theta);
+		//newWorld.knf = knifeLoop(newWorld, newWorld.knf, newWorld.plr, dt, phi, theta);
 
-		newWorld.enemies = enemyLoop(newWorld, newWorld.enemies, newWorld.plr, dt, phi, theta);
+		//newWorld.enemies = enemyLoop(newWorld, newWorld.enemies, newWorld.plr, dt, phi, theta);
 
 		newWorld.rkts = rocketsLoop(newWorld.rkts, newWorld, dt);
 
-		//newWorld.rL = lawnChairLoop(newWorld.rL, newWorld, newWorld.rkts, dt, phi, theta);
+		newWorld.rL = lawnChairLoop(newWorld.rL, newWorld, newWorld.rkts, dt, phi, theta);
 
 		return newWorld;
 	}

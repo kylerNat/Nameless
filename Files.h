@@ -15,5 +15,6 @@ namespace files{
 		GLushort * indexData;
 	};
 
+	const unsigned int n_properties = 3;
 	extern modelData getVertexData(const char * filename);
 }

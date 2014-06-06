@@ -134,189 +134,23 @@ namespace window {
 		MSG Msg;
 
 		//temp
-		graphics::vertexObject * vOs = new graphics::vertexObject[6];
-
-		//null vertex object
-		int i = 0;
-		vOs[i].data = files::modelData();
-
-		glGenBuffers(1, &vOs[i].vertexBufferObject);
-		glBindBuffer(GL_ARRAY_BUFFER, vOs[i].vertexBufferObject);
-		glBufferData(GL_ARRAY_BUFFER, 0, vOs[i].data.vertexData, GL_STATIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		glGenBuffers(1, &vOs[i].indexBufferObject);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vOs[i].indexBufferObject);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 0, vOs[i].data.indexData, GL_STATIC_DRAW);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-		glGenVertexArrays(1, &vOs[i].vertexArrayObject);
-		glBindVertexArray(vOs[i].vertexArrayObject);
-
-		glBindBuffer(GL_ARRAY_BUFFER, vOs[i].vertexBufferObject);
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
-		glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, 0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vOs[i].indexBufferObject);
-		glBindVertexArray(0);
-
-		//first vertex object
-		i = 1;
-		files::modelData data0 = files::getVertexData("models/world1.ply");
-		vOs[i].data = data0;
-
-		glGenBuffers(1, &vOs[i].vertexBufferObject);
-		glBindBuffer(GL_ARRAY_BUFFER, vOs[i].vertexBufferObject);
-		glBufferData(GL_ARRAY_BUFFER, vOs[i].data.vertexSize*sizeof(vOs[i].data.vertexData[0]), vOs[i].data.vertexData, GL_STATIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		glGenBuffers(1, &vOs[i].indexBufferObject);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vOs[i].indexBufferObject);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER,vOs[i]. data.indexSize*sizeof(vOs[i].data.indexData[0]), vOs[i].data.indexData, GL_STATIC_DRAW);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-		glGenVertexArrays(1, &vOs[i].vertexArrayObject);
-		glBindVertexArray(vOs[i].vertexArrayObject);
-
-		glBindBuffer(GL_ARRAY_BUFFER, vOs[i].vertexBufferObject);
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
-		glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, (void*)(vOs[i].data.vertexSize*sizeof(vOs[i].data.vertexData[0])/2));
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vOs[i].indexBufferObject);
-		glBindVertexArray(0);
-
-		//second vertex object
-		i = 2;
-		files::modelData data1 = files::getVertexData("models/knife.ply");
-		vOs[i].data = data1;
-
-		glGenBuffers(1, &vOs[i].vertexBufferObject);
-		glBindBuffer(GL_ARRAY_BUFFER, vOs[i].vertexBufferObject);
-		glBufferData(GL_ARRAY_BUFFER, vOs[i].data.vertexSize*sizeof(vOs[i].data.vertexData[0]), vOs[i].data.vertexData, GL_STATIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		glGenBuffers(1, &vOs[i].indexBufferObject);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vOs[i].indexBufferObject);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER,vOs[i]. data.indexSize*sizeof(vOs[i].data.indexData[0]), vOs[i].data.indexData, GL_STATIC_DRAW);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-		glGenVertexArrays(1, &vOs[i].vertexArrayObject);
-		glBindVertexArray(vOs[i].vertexArrayObject);
-
-		glBindBuffer(GL_ARRAY_BUFFER, vOs[i].vertexBufferObject);
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
-		glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, (void*)(vOs[i].data.vertexSize*sizeof(vOs[i].data.vertexData[0])/2));
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vOs[i].indexBufferObject);
-		glBindVertexArray(0);
-
-		//third vertex object
-		i = 3;
-		files::modelData data2 = files::getVertexData("models/monkey.ply");
-		vOs[i].data = data2;
-
-		glGenBuffers(1, &vOs[i].vertexBufferObject);
-		glBindBuffer(GL_ARRAY_BUFFER, vOs[i].vertexBufferObject);
-		glBufferData(GL_ARRAY_BUFFER, vOs[i].data.vertexSize*sizeof(vOs[i].data.vertexData[0]), vOs[i].data.vertexData, GL_STATIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		glGenBuffers(1, &vOs[i].indexBufferObject);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vOs[i].indexBufferObject);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER,vOs[i]. data.indexSize*sizeof(vOs[i].data.indexData[0]), vOs[i].data.indexData, GL_STATIC_DRAW);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-		glGenVertexArrays(1, &vOs[i].vertexArrayObject);
-		glBindVertexArray(vOs[i].vertexArrayObject);
-
-		glBindBuffer(GL_ARRAY_BUFFER, vOs[i].vertexBufferObject);
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
-		glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, (void*)(vOs[i].data.vertexSize*sizeof(vOs[i].data.vertexData[0])/2));
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vOs[i].indexBufferObject);
-		glBindVertexArray(0);
-
-		//fourth vertex object
-		i = 4;
-		files::modelData data3 = files::getVertexData("models/missle.ply");
-		vOs[i].data = data3;
-
-		glGenBuffers(1, &vOs[i].vertexBufferObject);
-		glBindBuffer(GL_ARRAY_BUFFER, vOs[i].vertexBufferObject);
-		glBufferData(GL_ARRAY_BUFFER, vOs[i].data.vertexSize*sizeof(vOs[i].data.vertexData[0]), vOs[i].data.vertexData, GL_STATIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		glGenBuffers(1, &vOs[i].indexBufferObject);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vOs[i].indexBufferObject);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER,vOs[i]. data.indexSize*sizeof(vOs[i].data.indexData[0]), vOs[i].data.indexData, GL_STATIC_DRAW);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-		glGenVertexArrays(1, &vOs[i].vertexArrayObject);
-		glBindVertexArray(vOs[i].vertexArrayObject);
-
-		glBindBuffer(GL_ARRAY_BUFFER, vOs[i].vertexBufferObject);
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
-		glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, (void*)(vOs[i].data.vertexSize*sizeof(vOs[i].data.vertexData[0])/2));
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vOs[i].indexBufferObject);
-		glBindVertexArray(0);
-
-		//5th vertex object
-		i = 5;
-		files::modelData data4 = files::getVertexData("models/launcher.ply");
-		vOs[i].data = data4;
-
-		glGenBuffers(1, &vOs[i].vertexBufferObject);
-		glBindBuffer(GL_ARRAY_BUFFER, vOs[i].vertexBufferObject);
-		glBufferData(GL_ARRAY_BUFFER, vOs[i].data.vertexSize*sizeof(vOs[i].data.vertexData[0]), vOs[i].data.vertexData, GL_STATIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		glGenBuffers(1, &vOs[i].indexBufferObject);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vOs[i].indexBufferObject);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER,vOs[i]. data.indexSize*sizeof(vOs[i].data.indexData[0]), vOs[i].data.indexData, GL_STATIC_DRAW);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-		glGenVertexArrays(1, &vOs[i].vertexArrayObject);
-		glBindVertexArray(vOs[i].vertexArrayObject);
-
-		glBindBuffer(GL_ARRAY_BUFFER, vOs[i].vertexBufferObject);
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
-		glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, (void*)(vOs[i].data.vertexSize*sizeof(vOs[i].data.vertexData[0])/2));
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vOs[i].indexBufferObject);
-		glBindVertexArray(0);
-
-		//6th vertex object
-		i = 6;
-		files::modelData data5 = files::getVertexData("models/explosion.ply");
-		vOs[i].data = data5;
-
-		glGenBuffers(1, &vOs[i].vertexBufferObject);
-		glBindBuffer(GL_ARRAY_BUFFER, vOs[i].vertexBufferObject);
-		glBufferData(GL_ARRAY_BUFFER, vOs[i].data.vertexSize*sizeof(vOs[i].data.vertexData[0]), vOs[i].data.vertexData, GL_STATIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		glGenBuffers(1, &vOs[i].indexBufferObject);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vOs[i].indexBufferObject);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER,vOs[i]. data.indexSize*sizeof(vOs[i].data.indexData[0]), vOs[i].data.indexData, GL_STATIC_DRAW);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-		glGenVertexArrays(1, &vOs[i].vertexArrayObject);
-		glBindVertexArray(vOs[i].vertexArrayObject);
-
-		glBindBuffer(GL_ARRAY_BUFFER, vOs[i].vertexBufferObject);
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
-		glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, (void*)(vOs[i].data.vertexSize*sizeof(vOs[i].data.vertexData[0])/2));
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vOs[i].indexBufferObject);
-		glBindVertexArray(0);
-
+		graphics::vertexObject vOs[] = {
+			graphics::createVertexObject(files::modelData()),
+			graphics::createVertexObject(files::getVertexData("models/missle.ply")),
+			graphics::createVertexObject(files::getVertexData("models/missle.ply")),
+			graphics::createVertexObject(files::getVertexData("models/missle.ply")),
+			graphics::createVertexObject(files::getVertexData("models/missle.ply")),
+			graphics::createVertexObject(files::getVertexData("models/missle.ply")),
+			graphics::createVertexObject(files::getVertexData("models/missle.ply")),
+		};
+		/*
+		vOs[1] = graphics::createVertexObject(files::getVertexData("models/World1.ply"));
+		vOs[2] = graphics::createVertexObject(files::getVertexData("models/knife.ply"));
+		vOs[3] = graphics::createVertexObject(files::getVertexData("models/monkey.ply"));
+		vOs[4] = graphics::createVertexObject(files::getVertexData("models/missle.ply"));
+		vOs[5] = graphics::createVertexObject(files::getVertexData("models/launcher.ply"));
+		vOs[6] = graphics::createVertexObject(files::getVertexData("models/explosion.ply"));
+		*/
 		//endtemp
 
 		if(createRID() == 0){
@@ -335,7 +169,7 @@ namespace window {
 		oldTime = curTime;
 
 		do {
-			graphics::draw(dc, program, vOs, 6, theWorld);
+			graphics::draw(dc, program, vOs, sizeof(vOs)/sizeof(vOs[0]), theWorld);
 			
 			QueryPerformanceCounter(&curTime);
 			float loops = 1;

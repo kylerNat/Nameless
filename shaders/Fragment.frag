@@ -1,35 +1,20 @@
 #version 330
 
-smooth in vec4 fragColor;
 smooth in vec3 fragPosition;
 smooth in vec3 fragNormal;
+smooth in vec2 fragUV;
+smooth in vec3 fragColor;
+flat in vec3 vertPosition;
+flat in vec2 vertUV;
 
 uniform vec3 cameraPos;
+uniform vec3 lights[3];
+uniform float m;
+uniform mat4 normalTransform;
 
 #define pi 3.14159265358979323846264338327950
 
-float fresnel(vec3 position, vec3 normal, vec3 lightIn){
-	float n0 = 1.3;
-	float n1 = 1.5;
-
-	float cosineCamLight = dot(-normalize(position), lightIn);
-	float cosineLightNorm = dot(normalize(normal), lightIn);
-	float sine2 = (1-cosineLightNorm*cosineLightNorm);
-
-	return (+0.5*cosineCamLight*pow(abs(
-		(n0*cosineLightNorm-n1*sqrt(1-(n0/n1)*(n0/n1)*sine2))/
-		(n0*cosineLightNorm+n1*sqrt(1-(n0/n1)*(n0/n1)*sine2))
-		), 2)
-
-		+0.5*cosineCamLight*pow(abs(
-		(n1*cosineLightNorm-n0*sqrt(1-(n0/n1)*(n0/n1)*sine2))/
-		(n1*cosineLightNorm+n0*sqrt(1-(n0/n1)*(n0/n1)*sine2))
-		), 2));
-}
-
-float beckmann(vec3 position, vec3 normal,vec3 lightIn){
-	float m = 0.025;//rms slope = sqrt(mean (slope^2))
-
+float beckmann(vec3 position, vec3 normal,vec3 lightIn, float m){
 	if(m == 0.0){
 		return 0.0;
 	}
@@ -43,89 +28,43 @@ float beckmann(vec3 position, vec3 normal,vec3 lightIn){
 }
 
 void main(){
+	//temp render texture from image for gui
 	vec2 pToC = gl_FragCoord.xy - vec2(960, 600); 
 
 	if(dot(pToC, pToC) < 50.0f){
 		gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
 		return;
 	}
+	//endtemp
+
+	//TODO: optimize math if needed
+	vec3 r2the2 = dot(vertPosition-fragPosition, vertPosition-fragPosition);
+	float yProjR = (pow(fragUV.y-vertUV.y, 2) - pow(fragUV.x, 2) + r2the2)/(2.0*sqrt(r2the2));
+	float yRejR = sqrt();
+
+	normUp = 
+
+	//vec3 normal = normalize(fragNormal + 0.1*(normalTransform*vec4(0.25*423.0*cos(fragUV.x*423.0), 0.25*423.0*cos(fragUV.y*423.0), 0.0, 1.0)).xyz);
+	vec3 normal = normalize(fragNormal + 0.1*(
+		  0.25*423.0*cos(fragUV.x*423.0) * cross(normUp, fragNormal)
+		+ 0.25*423.0*cos(fragUV.y*423.0) * -normUp
+	));
 
 	gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
 
-	vec3 lightIn = normalize(vec3(16.0, 100.0, -145.0)-fragPosition);
+	for(int l = 0; l < 3; l++){ //TODO: figure out how to use the equivelent of sizeof in GLSL
+		vec3 lightIn = normalize(lights[l]-fragPosition);
+		float cosine = dot(normalize(normal), lightIn);
 
-	float cosine = dot(normalize(fragNormal), lightIn);
-
-	gl_FragColor += 
-		fragColor*(
-			//lambertian
-			+1.0*clamp(cosine, 0.0, 1.0)
-		)
-
-		+0.0*vec4(0.7, 0.8, 1.0, 1.0)*(
-			//fresnel reflectence
-			clamp(fresnel(fragPosition, fragNormal, lightIn), 0.0, 1.0)
-		)
+		gl_FragColor.xyz += 
+			fragColor*(0.5+0.25*sin(fragUV.x*423.0)+0.25*sin(fragUV.y*423.0))*(
+				//lambertian
+				0.2//+clamp(cosine, 0.0, 1.0)
+			)
 		
-		//specular
-		+1.0*vec4(1.0, 1.0, 1.0, 1.0)*(
-			//+clamp(pow(cosine, 1000), 0.0, 1.0)
-
-			+beckmann(fragPosition, fragNormal, lightIn)
-		);
-
-	lightIn = normalize(vec3(56.0, 10.0, 145.0)-fragPosition);
-
-	cosine = dot(normalize(fragNormal), lightIn);
-
-	gl_FragColor +=
-		fragColor*(
-			//lambertian
-			+1.0*clamp(cosine, 0.0, 1.0)
-		)
-
-		+0.0*vec4(0.7, 0.8, 1.0, 1.0)*(
-			//fresnel reflectence
-			clamp(fresnel(fragPosition, fragNormal, lightIn), 0.0, 1.0)
-		)
-		
-		//specular
-		+1.0*vec4(1.0, 1.0, 1.0, 1.0)*(
-			//+clamp(pow(cosine, 1000), 0.0, 1.0)
-
-			+beckmann(fragPosition, fragNormal, lightIn)
-		);
-
-	lightIn = normalize(vec3(59.0, 1.0, 0.0)-fragPosition);
-
-	cosine = dot(normalize(fragNormal), lightIn);
-
-	gl_FragColor +=
-		fragColor*(
-			//lambertian
-			+1.0*clamp(cosine, 0.0, 1.0)
-		)
-
-		+0.0*vec4(0.7, 0.8, 1.0, 1.0)*(
-			//fresnel reflectence
-			clamp(fresnel(fragPosition, fragNormal, lightIn), 0.0, 1.0)
-		)
-		
-		//specular
-		+1.0*vec4(1.0, 1.0, 1.0, 1.0)*(
-			//+clamp(pow(cosine, 1000), 0.0, 1.0)
-
-			+beckmann(fragPosition, fragNormal, lightIn)
-		);
-
-	gl_FragColor *= 0.75;
-	//gl_FragColor.xyz = normalize(cameraPos-fragPosition);
-	//gl_FragColor += vec4(1.0, 0.0, 0.0, 0.0)*(1-lighting);
-	
-	/*
-	vec2 texcoord = vec2((1.0/1024.0)*(gl_FragCoord.x-500), (1.0/1024.0)*gl_FragCoord.y);
-	gl_FragColor = mix(vec4(1.0, 0.0, 0.0, 1.0), vec4(0.0, 0.0, 0.0, 1.0), (1.0/1200.0)*gl_FragCoord.y)+mix(vec4(0.0, 0.0, 1.0, 0.0), vec4(0.0, 0.0, 0.0, 1.0), (1.0/1920.0)*gl_FragCoord.x);
-	gl_FragColor = mix(vec4(1.0, 1.0, 1.0, 1.0), vec4(0.0, 0.0, 0.0, 1.0), texture(shadowMap, (1.0/1000.0)*gl_FragCoord.xy).x);//texture2D(shadowMap, texcoord).x );
-	//gl_FragColor = texture2D(shadowMap, texcoord);
-	*/
+			//specular
+			+vec3(1.0, 1.0, 1.0)*(
+				+clamp(beckmann(fragPosition, normal, lightIn, m), 0.0, 1.0)
+			);
+	}
 }

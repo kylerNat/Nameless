@@ -22,6 +22,8 @@ namespace graphics {
 		GLuint indexBufferObject;
 	};
 
+	vertexObject createVertexObject(files::modelData data);
+
 	extern GLuint createShader(GLenum, const char*);
 	
 	//extern GLuint createProgram(const GLuint * shaders, const int nShaders);
