@@ -49,7 +49,7 @@ namespace files{
 				fscanf(file, "%31s", element_name);
 				if(!strcmp(element_name, "vertex")){
 					fscanf(file, "%d", &nVerts);
-					out.vertexData = new GLfloat[nVerts*3*n_properties+nVerts*2];//3 for the position, 3 for the color, 3 for the normal
+					out.vertexData = new GLfloat[nVerts*3*n_properties];//3 for the position, 3 for the color, 3 for the normal
 				}
 				else
 				if(!strcmp(element_name, "face")){
@@ -72,13 +72,10 @@ namespace files{
 			for(int c = 0; c < 3; c++){
 				fscanf(file, "%f", &out.vertexData[nVerts*3+3*v+c]);
 			}
-			for(int c = 0; c < 2; c++){
-				fscanf(file, "%f", &out.vertexData[nVerts*3*2+2*v+c]);
-			}
 			for(int c = 0; c < 3; c++){
 				float color;
 				fscanf(file, "%f", &color);
-				out.vertexData[nVerts*3*2+nVerts*2+3*v+c] = color/255.0;
+				out.vertexData[nVerts*3*2+3*v+c] = color/255.0;
 			}
 		}
 		
@@ -100,7 +97,7 @@ namespace files{
 		}
 
 		out.indexSize = face*3;
-		out.vertexSize = nVerts*3*n_properties+nVerts*2;
+		out.vertexSize = nVerts*3*n_properties;
 		return out;//figure out return values
 	}
 }

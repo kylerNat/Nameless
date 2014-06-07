@@ -136,21 +136,13 @@ namespace window {
 		//temp
 		graphics::vertexObject vOs[] = {
 			graphics::createVertexObject(files::modelData()),
+			graphics::createVertexObject(files::getVertexData("models/World1.ply")),
+			graphics::createVertexObject(files::getVertexData("models/knife.ply")),
+			graphics::createVertexObject(files::getVertexData("models/monkey.ply")),
 			graphics::createVertexObject(files::getVertexData("models/missle.ply")),
-			graphics::createVertexObject(files::getVertexData("models/missle.ply")),
-			graphics::createVertexObject(files::getVertexData("models/missle.ply")),
-			graphics::createVertexObject(files::getVertexData("models/missle.ply")),
-			graphics::createVertexObject(files::getVertexData("models/missle.ply")),
-			graphics::createVertexObject(files::getVertexData("models/missle.ply")),
+			graphics::createVertexObject(files::getVertexData("models/launcher.ply")),
+			graphics::createVertexObject(files::getVertexData("models/explosion.ply")),
 		};
-		/*
-		vOs[1] = graphics::createVertexObject(files::getVertexData("models/World1.ply"));
-		vOs[2] = graphics::createVertexObject(files::getVertexData("models/knife.ply"));
-		vOs[3] = graphics::createVertexObject(files::getVertexData("models/monkey.ply"));
-		vOs[4] = graphics::createVertexObject(files::getVertexData("models/missle.ply"));
-		vOs[5] = graphics::createVertexObject(files::getVertexData("models/launcher.ply"));
-		vOs[6] = graphics::createVertexObject(files::getVertexData("models/explosion.ply"));
-		*/
 		//endtemp
 
 		if(createRID() == 0){

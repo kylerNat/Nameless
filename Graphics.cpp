@@ -8,11 +8,9 @@ namespace graphics{
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
 		glEnableVertexAttribArray(2);
-		glEnableVertexAttribArray(3);
 		glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
-		glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, (void*)(vO.data.vertexSize*sizeof(vO.data.vertexData[0])*3/11));
-		glVertexAttribPointer(2, 2, GL_FLOAT, 0, 0, (void*)(vO.data.vertexSize*sizeof(vO.data.vertexData[0])*6/11));
-		glVertexAttribPointer(3, 3, GL_FLOAT, 0, 0, (void*)(vO.data.vertexSize*sizeof(vO.data.vertexData[0])*8/11));
+		glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, (void*)(vO.data.vertexSize*sizeof(vO.data.vertexData[0])*1/3));
+		glVertexAttribPointer(2, 3, GL_FLOAT, 0, 0, (void*)(vO.data.vertexSize*sizeof(vO.data.vertexData[0])*2/3));
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vO.indexBufferObject);
 		return vO;
 	}
@@ -216,12 +214,9 @@ namespace graphics{
 		look = glm::mat4_cast(theWorld.cam.att);
 
 		glm::vec3 lits[3] = {
-			//glm::vec3(16.0, 100.0, -145.0),
-			//glm::vec3(56.0, 10.0, 145.0),
-			//glm::vec3(59.0, 1.0, 0.0),
-			glm::vec3(10.0, -1.0, 100.0),
-			glm::vec3(10.0, -1.0, 100.0),
-			glm::vec3(10.0, -1.0, 100.0),
+			glm::vec3(16.0, 100.0, -145.0),
+			glm::vec3(56.0, 10.0, 145.0),
+			glm::vec3(59.0, 1.0, 0.0),
 		};
 
 		glUniform3fv(lights, 3, (GLfloat*) &lits[0]);
