@@ -43,6 +43,7 @@ struct knife {
 	float angle;
 	bool onRight;
 	glm::quat * att;
+	float shakeTime;
 };
 
 struct enemy {
@@ -56,6 +57,7 @@ struct model {
 	glm::vec3 pos;
 	glm::quat att;
 	float m;
+	unsigned int matId;
 };
 
 struct rocket {

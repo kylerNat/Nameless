@@ -140,7 +140,7 @@ namespace window {
 			graphics::createVertexObject(files::getVertexData("models/knife.ply")),
 			graphics::createVertexObject(files::getVertexData("models/monkey.ply")),
 			graphics::createVertexObject(files::getVertexData("models/missle.ply")),
-			graphics::createVertexObject(files::getVertexData("models/launcher.ply")),
+			graphics::createVertexObject(files::getVertexData("models/knife.ply")),
 			graphics::createVertexObject(files::getVertexData("models/explosion.ply")),
 		};
 		//endtemp

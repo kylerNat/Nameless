@@ -129,7 +129,7 @@ namespace mainLoop{
 				plr.relAccel->x *= 2.0*sqrt(1.0+abs(plr.relVel->x));
 			}
 
-			if(abs(plr.relVel->x) < 30.0){
+			if(abs(plr.relVel->x) < 50.0){
 				plr.relAccel->x *= 10.0;
 			}
 			plr.relAccel->x -= 1.5f*plr.relVel->x;
@@ -143,10 +143,11 @@ namespace mainLoop{
 
 			if(plr.part.p->y >= 0.0){
 				if(input::pressed(' ')){
-					plr.part.v->y = -15.0;
+					plr.part.v->y = -12.0;
+					plr.relVel->y += speed*moveDir.y*2.0*exp(-abs(plr.relVel->y)/14.0);
 				}
 				else{
-					if(abs(plr.relVel->y) < 30.0){
+					if(abs(plr.relVel->y) < 50.0){
 						plr.relAccel->y *= 10.0;
 					}
 					plr.relAccel->y -= 1.0f*plr.relVel->y;
@@ -166,10 +167,10 @@ namespace mainLoop{
 
 			if(plr.part.p->y >= 0.0){
 				if(input::pressed(' ')){
-					plr.part.v->y = -15.0;
+					plr.part.v->y = -12.0;
 				}
 				else{
-					(*plr.part.a) -= 30.0f*(*plr.part.v);
+					(*plr.part.a) -= 6.0f*(*plr.part.v);
 				}
 			}
 		}
@@ -187,7 +188,12 @@ namespace mainLoop{
 	camera cameraLoop(camera cam, glm::vec3 target, float dt, float phi, float theta){
 		*cam.part.a = -750.0f*(*cam.part.p);
 		if(*cam.part.v != glm::vec3(0.0)){
-			*cam.part.a -= 60.0f*glm::normalize(*cam.part.v);
+			*cam.part.a -= 30.0f*glm::normalize(*cam.part.v);
+			if(glm::dot(*cam.part.v, *cam.part.v) <= glm::dot(*cam.part.a*dt, *cam.part.a*dt) && glm::dot(*cam.part.v, *cam.part.a*dt) <= 0.0 && glm::dot(*cam.part.p, *cam.part.p) <= 0.5){
+				*cam.part.p = glm::vec3(0.0);
+				*cam.part.v = glm::vec3(0.0);
+				*cam.part.a = glm::vec3(0.0);
+			}
 		}
 		cam.part = particleLoop(cam.part, dt);
 		cam.pos = target+*cam.part.p*glm::mat3_cast(cam.att);
@@ -215,16 +221,16 @@ namespace mainLoop{
 			if(input::pressed(VK_LBUTTON)){
 				knf.angle -= 9.0*dt*knf.angle/abs(knf.angle);
 				arm = 7.5f*glm::vec3(-sin(phi+knf.angle)*cos(theta), sin(theta), cos(phi+knf.angle)*cos(theta));
-				if(!(*wrld.shaking)){
-					auto randVector = glm::vec3((rand()%100-50)/100.0, (rand()%100-50)/100.0, (rand()%100-50)/100.0);
-					//newWorld.knife.velocity = 50.0f*lookDir;//glm::normalize(randVector);
-					*wrld.cam.part.v += /*10.0f*lookDir+*/5.0f*glm::normalize(randVector);
-					*wrld.cam.part.v -= exp(-glm::dot((*knf.part.v), (*knf.part.v))*1.0f)*(*knf.part.v);
-				}
-				*wrld.shaking = true;
+				//if(knf.shakeTime > 0.0){//screen shake
+				//	auto randVector = glm::vec3((rand()%100-50)/100.0, (rand()%100-50)/100.0, (rand()%100-50)/100.0);
+				//	//newWorld.knife.velocity = 50.0f*lookDir;//glm::normalize(randVector);
+				//	*wrld.cam.part.v += /*10.0f*lookDir+*/5.0f*glm::normalize(randVector);
+				//	*wrld.cam.part.v -= exp(-glm::dot((*knf.part.v), (*knf.part.v))*1.0f)*(*knf.part.v);
+				//}
+				knf.shakeTime -= dt;
 			}
 			else {
-				*wrld.shaking = false;
+				knf.shakeTime = 0.1;
 				arm = 2.5f*glm::vec3(-sin(phi+knf.angle)*cos(theta+0.5), sin(theta+0.5), cos(phi+knf.angle)*cos(theta+0.5));
 
 				if(abs(knf.angle) < 1.04 && glm::cross((*plr.part.p+arm)-(*knf.part.p), glm::vec3(0.0, (knf.onRight ? 1.0f : -1.0f), 0.0)) != glm::vec3(0.0, 0.0, 0.0)){
@@ -526,13 +532,13 @@ namespace mainLoop{
 
 		newWorld.cam = cameraLoop(newWorld.cam, *newWorld.plr.part.p, dt, phi, theta);
 
-		//newWorld.knf = knifeLoop(newWorld, newWorld.knf, newWorld.plr, dt, phi, theta);
+		newWorld.knf = knifeLoop(newWorld, newWorld.knf, newWorld.plr, dt, phi, theta);
 
-		//newWorld.enemies = enemyLoop(newWorld, newWorld.enemies, newWorld.plr, dt, phi, theta);
+		newWorld.enemies = enemyLoop(newWorld, newWorld.enemies, newWorld.plr, dt, phi, theta);
 
 		newWorld.rkts = rocketsLoop(newWorld.rkts, newWorld, dt);
 
-		newWorld.rL = lawnChairLoop(newWorld.rL, newWorld, newWorld.rkts, dt, phi, theta);
+		//newWorld.rL = lawnChairLoop(newWorld.rL, newWorld, newWorld.rkts, dt, phi, theta);
 
 		return newWorld;
 	}

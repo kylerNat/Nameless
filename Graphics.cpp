@@ -185,6 +185,7 @@ namespace graphics{
 		GLuint worldPos = glGetUniformLocation(program, "worldPosition");
 
 		GLuint m = glGetUniformLocation(program, "m");
+		GLuint matId = glGetUniformLocation(program, "matId");
 
 		GLuint lights = glGetUniformLocation(program, "lights");
 
@@ -248,7 +249,9 @@ namespace graphics{
 			objects[i] = bindVO(objects[i]);
 
 			glUniform1f(m, theWorld.models[e].m);
-			
+
+			glUniform1i(matId, theWorld.models[e].matId);
+
 			glUniformMatrix4fv(normalTransform, 1, GL_FALSE, &rot[0][0]);
 			glUniformMatrix4fv(perspective, 1, GL_FALSE, &persp[0][0]);
 
