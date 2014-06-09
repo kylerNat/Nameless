@@ -31,10 +31,10 @@ struct hitbox {
 */
 
 struct player {
-	glm::vec2 * relVel;
-	glm::vec2 * relAccel;
+	float speed;
+	glm::vec2 * dir;
 	particle part;
-	player():relVel(new glm::vec2()),relAccel(new glm::vec2()){}
+	player():dir(new glm::vec2()),speed(0.0){}
 };
 
 struct knife {

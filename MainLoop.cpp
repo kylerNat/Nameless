@@ -60,7 +60,7 @@ namespace mainLoop{
 			newWorld.enemies[i].part.p = &newWorld.models[2+i].pos;
 			newWorld.enemies[i].att = &newWorld.models[2+i].att;
 			newWorld.enemies[i].health = new float();
-			*newWorld.enemies[i].health = 10.0f;
+			*newWorld.enemies[i].health = 40.0f;
 			*newWorld.enemies[i].part.p = 1000.0f*glm::vec3((rand()%100-50)/100.0f, 0.0, (rand()%100-50)/100.0f);
 		}
 
@@ -132,75 +132,53 @@ namespace mainLoop{
 			moveDir.x -= 1.0;
 		}
 
-		float speed = 3.0;
+		float speed = 3.0;//TODO: rename
+
+		float accel = 0.0;
 
 		if(moveDir != glm::vec2(0.0, 0.0)){
 			moveDir = glm::normalize(moveDir);
-			plr.relAccel->y = speed*1.0*exp(-abs(plr.relVel->y)/7.0);
-			//direction change boost
-			if(plr.relVel->y < -0.1){
-				plr.relAccel->y *= 20.0*sqrt(abs(plr.relVel->y));
+
+			if(*plr.dir != glm::vec2(0.0, 0.0)){
+				*plr.dir = glm::normalize(*plr.dir);
 			}
+
+			float dirperdtdt = 7.0*(1.0+0.25*(1.0-glm::dot(*plr.dir, moveDir)));
+			/*if(glm::dot(*plr.dir, moveDir) <= 0.0){
+				dirperdtdt = 20.0;
+			}*/
+
+			if(glm::dot(moveDir - *plr.dir, moveDir - *plr.dir) < dirperdtdt*dt){
+				*plr.dir = moveDir;
+			}
+			else{
+				*plr.dir += dirperdtdt*dt*glm::normalize(moveDir - *plr.dir);
+				if(*plr.dir != glm::vec2(0.0, 0.0)){
+					*plr.dir = glm::normalize(*plr.dir);
+				}
+			}
+
+			accel = speed*1.0*exp(-abs(plr.speed)/7.0);
 
 			if(plr.part.p->y >= 0.0){
 				if(input::pressed(' ')){
 					plr.part.v->y = -12.0;
-					plr.relVel->y += speed*2.0*exp(-abs(plr.relVel->y)/14.0);
+					plr.speed += speed*2.0*exp(-abs(plr.speed)/14.0);
 				}
 				else{
-					if(abs(plr.relVel->y) < 50.0){
-						plr.relAccel->y *= 10.0;
+					if(abs(plr.speed) < 50.0){
+						accel *= 10.0;
 					}
-					plr.relAccel->y -= 1.0f*plr.relVel->y;
+					accel -= 1.0f*plr.speed;
 				}
 			}
 
-			plr.part.a->x = cos(phi)*plr.relAccel->y*moveDir.x-sin(phi)*plr.relAccel->y*moveDir.y;
+			plr.part.a->x = cos(phi)*accel*plr.dir->x-sin(phi)*accel*plr.dir->y;
 			plr.part.a->y = gravity;
-			plr.part.a->z = cos(phi)*plr.relAccel->y*moveDir.y+sin(phi)*plr.relAccel->y*moveDir.x;
+			plr.part.a->z = cos(phi)*accel*plr.dir->y+sin(phi)*accel*plr.dir->x;
 
-			plr.part.v->x = cos(phi)*plr.relVel->y*moveDir.x-sin(phi)*plr.relVel->y*moveDir.y;
-			plr.part.v->z = cos(phi)*plr.relVel->y*moveDir.y+sin(phi)*plr.relVel->y*moveDir.x;
-			/*
-			//straif //TODO: make better
-			plr.relAccel->x = speed*1.0*moveDir.x;
-
-			//direction change boost
-			if(plr.relVel->x*moveDir.x <= 0.0){
-				plr.relAccel->x *= 2.0*sqrt(1.0+abs(plr.relVel->x));
-			}
-
-			if(abs(plr.relVel->x) < 50.0){
-				plr.relAccel->x *= 10.0;
-			}
-			plr.relAccel->x -= 1.5f*plr.relVel->x;
-			
-			//forward
-			plr.relAccel->y = speed*moveDir.y*1.0*exp(-abs(plr.relVel->y)/7.0);
-			//direction change boost
-			if(plr.relVel->y*moveDir.y < -0.1){
-				plr.relAccel->y *= 20.0*sqrt(abs(plr.relVel->y));
-			}
-
-			if(plr.part.p->y >= 0.0){
-				if(input::pressed(' ')){
-					plr.part.v->y = -12.0;
-					plr.relVel->y += speed*moveDir.y*2.0*exp(-abs(plr.relVel->y)/14.0);
-				}
-				else{
-					if(abs(plr.relVel->y) < 50.0){
-						plr.relAccel->y *= 10.0;
-					}
-					plr.relAccel->y -= 1.0f*plr.relVel->y;
-				}
-			}
-			plr.part.a->x = cos(phi)*plr.relAccel->x-sin(phi)*plr.relAccel->y;
-			plr.part.a->y = gravity;
-			plr.part.a->z = cos(phi)*plr.relAccel->y+sin(phi)*plr.relAccel->x;
-
-			plr.part.v->x = cos(phi)*plr.relVel->x-sin(phi)*plr.relVel->y;
-			plr.part.v->z = cos(phi)*plr.relVel->y+sin(phi)*plr.relVel->x;
-			*/
+			plr.part.v->x = cos(phi)*plr.speed*plr.dir->x-sin(phi)*plr.speed*plr.dir->y;
+			plr.part.v->z = cos(phi)*plr.speed*plr.dir->y+sin(phi)*plr.speed*plr.dir->x;
 		}
 		else{
 			plr.part.a->x = 0.0;
@@ -223,8 +201,9 @@ namespace mainLoop{
 
 		auto yless = glm::vec2(plr.part.v->x, plr.part.v->z);
 
-		plr.relVel->y = sqrt(glm::dot(yless, yless));
-
+		plr.speed = sqrt(glm::dot(yless, yless));
+		plr.dir->x = cos(phi)*yless.x+sin(phi)*yless.y;
+		plr.dir->y = cos(phi)*yless.y-sin(phi)*yless.x;
 		return plr;
 	}
 
@@ -342,7 +321,7 @@ namespace mainLoop{
 					auto dist = *wrld.enemies[e].part.p - *rkts[i].part.p;
 					if(glm::dot(dist, dist) <= pow(1.6, 2)){
 						*wrld.enemies[e].part.v += *rkts[i].part.v;
-						*wrld.enemies[e].health -= 10.0;
+						*wrld.enemies[e].health -= 20.0;
 						rkts[i].exploded = true;
 					}
 				}
@@ -357,8 +336,9 @@ namespace mainLoop{
 					//screen shake
 					auto dist = *rkts[i].part.p - *wrld.plr.part.p;
 					auto randVector = glm::vec3((rand()%100-50)/100.0, (rand()%100-50)/100.0, (rand()%100-50)/100.0);
-					*wrld.cam.part.v += 4.0f*glm::normalize(randVector)/sqrt(glm::dot(dist, dist));
-
+					if(randVector != glm::vec3(0.0)){
+						*wrld.cam.part.v += 4.0f*glm::normalize(randVector)/sqrt(glm::dot(dist, dist));
+					}
 					*rkts[i].modelId = 6;
 				}
 				else{
@@ -386,7 +366,9 @@ namespace mainLoop{
 						*rL.part.v -= 20.0f*lookDir+relFactor;
 							
 						auto randVector = glm::vec3((rand()%100-50)/100.0, (rand()%100-50)/100.0, (rand()%100-50)/100.0+glm::dot(*rL.part.v-*wrld.plr.part.v, lookDir)/sqrt(glm::dot(lookDir, lookDir)));
-						*wrld.cam.part.v += 5.0f*glm::normalize(randVector);
+						if(randVector != glm::vec3(0.0)){
+							*wrld.cam.part.v += 5.0f*glm::normalize(randVector);
+						}
 						break;
 					}
 				}
@@ -439,7 +421,7 @@ namespace mainLoop{
 		bool blown = false;
 		for(int i = 0; i < 100; i++){
 			auto dist = *p.p - *rkts[i].part.p;
-			if(rkts[i].exploded && rkts[i].explosionTimer > 0.0 && glm::dot(dist, dist) <= pow(7.0, 2)){//TODO: make potential exponential
+			if(rkts[i].exploded && rkts[i].explosionTimer > 0.0 && glm::dot(dist, dist) <= pow(7.0, 2) && dist != glm::vec3(0.0)){//TODO: make potential exponential
 				(*p.a) += 360.0f*exp(-0.1f*sqrt(glm::dot(dist, dist)))*glm::normalize(dist);//40.0f*glm::normalize(dist);
 				blown = true;
 			}
@@ -470,7 +452,7 @@ namespace mainLoop{
 					bool dodgeRocket = false;
 					for(int r = 0; r < 100; r++){//eats frames //TODO:make list of living rockets at the start of the main loop or in the rocket loop, maybe a run length encoded list// or mabey just decrease the number of rockets
 						auto rocketDist = *wrld.rkts[r].part.p - *enemies[i].part.p;
-						if(wrld.rkts[r].explosionTimer > 0.0 && glm::dot(glm::normalize(-rocketDist), glm::normalize(*wrld.rkts[r].part.v)) > cos(0.01*i)){
+						if(rocketDist != glm::vec3(0.0) && *wrld.rkts[r].part.v != glm::vec3(0.0) && wrld.rkts[r].explosionTimer > 0.0 && glm::dot(glm::normalize(-rocketDist), glm::normalize(*wrld.rkts[r].part.v)) > cos(0.01*i)){
 							dodgeRocket = true;
 							if(glm::dot(rocketDist, rocketDist) < glm::dot(rockPos - *enemies[i].part.p, rockPos - *enemies[i].part.p)){
 								rockPos = *wrld.rkts[r].part.p;
@@ -484,7 +466,7 @@ namespace mainLoop{
 					}
 				}
 
-				if(glm::dot(knifeDist, knifeDist) < pow(1.6, 2)){
+				if(glm::dot(knifeDist, knifeDist) < pow(1.6, 2) && knifeDist != glm::vec3(0.0)){
 						float dmg = sqrt(glm::dot(*wrld.knf.part.v, *wrld.knf.part.v));
 				
 						*enemies[i].part.p -= sqrt(pow(1.6f, 2.0f) - glm::dot(knifeDist, knifeDist)) * glm::normalize(knifeDist);
@@ -533,7 +515,9 @@ namespace mainLoop{
 				}
 				else{
 					*enemies[i].part.a = -0.6f*(*enemies[i].part.v);
-					*enemies[i].att = lookQuat(glm::normalize(*enemies[i].part.v), glm::vec3(0.0, -10.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+					if(*enemies[i].part.v != glm::vec3(0.0)){
+						*enemies[i].att = lookQuat(glm::normalize(*enemies[i].part.v), glm::vec3(0.0, -10.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+					}
 				}
 
 				enemies[i].part.a->y = 5.75;
