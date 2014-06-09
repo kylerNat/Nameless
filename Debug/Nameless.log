@@ -1,16 +1,33 @@
-﻿Build started 6/7/2014 9:52:16 PM.
+﻿Build started 6/9/2014 12:09:41 PM.
      1>Project "C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\Nameless\Nameless.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\Nameless.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\glm" /I"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\glext" /I"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\glew-1.10.0\include" /I"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\Nameless" /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Graphics.cpp
-         Graphics.cpp
-     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\graphics.cpp(71): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\graphics.cpp(89): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\graphics.cpp(194): warning C4305: 'argument' : truncation from 'double' to 'GLclampf'
-     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\graphics.cpp(194): warning C4305: 'argument' : truncation from 'double' to 'GLclampf'
-     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\graphics.cpp(228): warning C4018: '>' : signed/unsigned mismatch
-         GLM: perspectiveFov function taking degrees as a parameter is deprecated. #define GLM_FORCE_RADIANS before including GLM headers to remove this message.
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\glm" /I"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\glext" /I"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\glew-1.10.0\include" /I"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\Nameless" /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt MainLoop.cpp
+         MainLoop.cpp
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(32): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(48): warning C4305: '=' : truncation from 'double' to 'float'
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(58): warning C4305: '=' : truncation from 'double' to 'float'
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(72): warning C4305: '=' : truncation from 'double' to 'float'
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(85): warning C4305: '=' : truncation from 'double' to 'float'
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(139): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(142): warning C4244: '*=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(148): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(254): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(256): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(266): warning C4244: '-=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(277): warning C4305: '=' : truncation from 'double' to 'float'
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(289): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(419): warning C4305: 'initializing' : truncation from 'double' to 'float'
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(495): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(497): warning C4244: '-=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(521): warning C4244: '-=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(545): warning C4305: 'argument' : truncation from 'double' to 'float'
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(559): warning C4305: '*=' : truncation from 'double' to 'float'
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(569): warning C4305: '=' : truncation from 'double' to 'float'
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(570): warning C4305: '=' : truncation from 'double' to 'float'
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(574): warning C4305: '=' : truncation from 'double' to 'float'
+     1>c:\users\kyler\programing stuffs\the nameless one\nameless\nameless\mainloop.cpp(575): warning C4305: '=' : truncation from 'double' to 'float'
        Link:
          c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\Debug\Nameless.exe" /NOLOGO /LIBPATH:"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\glew-1.10.0\lib" opengl32.lib glu32.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\Nameless.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\Debug\Nameless.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Kyler\Programing Stuffs\The Nameless One\Nameless\Debug\Nameless.lib" /MACHINE:X86 Debug\Files.obj
          Debug\Graphics.obj
@@ -28,4 +45,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:02.39
+Time Elapsed 00:00:02.20

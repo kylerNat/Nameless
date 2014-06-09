@@ -84,6 +84,7 @@ struct world {
 	rocket * rkts;
 	rocketLauncher rL;
 	model * models;
+	unsigned int wpn;
 };
 
 namespace mainLoop {

@@ -250,7 +250,7 @@ namespace graphics{
 
 			glUniform1f(m, theWorld.models[e].m);
 
-			glUniform1i(matId, theWorld.models[e].matId);
+			glUniform1ui(matId, theWorld.models[e].matId);
 
 			glUniformMatrix4fv(normalTransform, 1, GL_FALSE, &rot[0][0]);
 			glUniformMatrix4fv(perspective, 1, GL_FALSE, &persp[0][0]);

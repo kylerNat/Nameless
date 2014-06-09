@@ -32,17 +32,21 @@ namespace mainLoop{
 		srand (time(NULL));
 		world newWorld;
 
+		newWorld.wpn = 0;
+
 		newWorld.models = new model[n_models]();
 
 		newWorld.models[0].id = 1;
 		newWorld.models[0].pos = glm::vec3(0.0, 0.0, 0.0);
 		newWorld.models[0].att = glm::quat();
 		newWorld.models[0].m = 0.0;
+		newWorld.models[0].matId = 3;
 
 		newWorld.models[1].id = 2;
 		newWorld.models[1].pos = glm::vec3(0.0, 0.0, 0.0);
 		newWorld.models[1].att = glm::quat();	
 		newWorld.models[1].m = 0.325;
+		newWorld.models[1].matId = 1;
 		newWorld.knf.part.p = &newWorld.models[1].pos;
 		newWorld.knf.att = &newWorld.models[1].att;
 
@@ -52,6 +56,7 @@ namespace mainLoop{
 			newWorld.models[2+i].pos = glm::vec3(0.0, 0.0, 0.0);
 			newWorld.models[2+i].att = glm::quat();
 			newWorld.models[2+i].m = 0.025;
+			newWorld.models[2+i].matId = 2;
 			newWorld.enemies[i].part.p = &newWorld.models[2+i].pos;
 			newWorld.enemies[i].att = &newWorld.models[2+i].att;
 			newWorld.enemies[i].health = new float();
@@ -65,6 +70,7 @@ namespace mainLoop{
 			newWorld.models[102+i].pos = glm::vec3(0.0, 0.0, 0.0);
 			newWorld.models[102+i].att = glm::quat();
 			newWorld.models[102+i].m = 0.325;
+			newWorld.models[102+i].matId = 1;
 			newWorld.rkts[i].part.p = &newWorld.models[102+i].pos;
 			newWorld.rkts[i].att = &newWorld.models[102+i].att;
 			
@@ -77,6 +83,7 @@ namespace mainLoop{
 		newWorld.models[202].pos = glm::vec3(0.0, 0.0, 0.0);
 		newWorld.models[202].att = glm::quat();
 		newWorld.models[202].m = 0.325;
+		newWorld.models[202].matId = 1;
 		newWorld.rL.part.p = &newWorld.models[202].pos;
 		newWorld.rL.att = &newWorld.models[202].att;
 
@@ -98,6 +105,13 @@ namespace mainLoop{
 		if(p.p->y >= -h){
 			p.p->y = -h;
 			p.v->y = 0;
+		}
+		const float r = 1000.0;
+		auto yLess = glm::vec3(p.p->x, 0.0, p.p->z);
+		if(glm::dot(yLess, yLess) >= r*r){
+			*p.p -= yLess;
+			*p.p += r*glm::normalize(yLess);
+			*p.v -= glm::proj(*p.v, yLess);
 		}
 		return p;
 	}
@@ -121,6 +135,33 @@ namespace mainLoop{
 		float speed = 3.0;
 
 		if(moveDir != glm::vec2(0.0, 0.0)){
+			moveDir = glm::normalize(moveDir);
+			plr.relAccel->y = speed*1.0*exp(-abs(plr.relVel->y)/7.0);
+			//direction change boost
+			if(plr.relVel->y < -0.1){
+				plr.relAccel->y *= 20.0*sqrt(abs(plr.relVel->y));
+			}
+
+			if(plr.part.p->y >= 0.0){
+				if(input::pressed(' ')){
+					plr.part.v->y = -12.0;
+					plr.relVel->y += speed*2.0*exp(-abs(plr.relVel->y)/14.0);
+				}
+				else{
+					if(abs(plr.relVel->y) < 50.0){
+						plr.relAccel->y *= 10.0;
+					}
+					plr.relAccel->y -= 1.0f*plr.relVel->y;
+				}
+			}
+
+			plr.part.a->x = cos(phi)*plr.relAccel->y*moveDir.x-sin(phi)*plr.relAccel->y*moveDir.y;
+			plr.part.a->y = gravity;
+			plr.part.a->z = cos(phi)*plr.relAccel->y*moveDir.y+sin(phi)*plr.relAccel->y*moveDir.x;
+
+			plr.part.v->x = cos(phi)*plr.relVel->y*moveDir.x-sin(phi)*plr.relVel->y*moveDir.y;
+			plr.part.v->z = cos(phi)*plr.relVel->y*moveDir.y+sin(phi)*plr.relVel->y*moveDir.x;
+			/*
 			//straif //TODO: make better
 			plr.relAccel->x = speed*1.0*moveDir.x;
 
@@ -133,7 +174,7 @@ namespace mainLoop{
 				plr.relAccel->x *= 10.0;
 			}
 			plr.relAccel->x -= 1.5f*plr.relVel->x;
-
+			
 			//forward
 			plr.relAccel->y = speed*moveDir.y*1.0*exp(-abs(plr.relVel->y)/7.0);
 			//direction change boost
@@ -159,6 +200,7 @@ namespace mainLoop{
 
 			plr.part.v->x = cos(phi)*plr.relVel->x-sin(phi)*plr.relVel->y;
 			plr.part.v->z = cos(phi)*plr.relVel->y+sin(phi)*plr.relVel->x;
+			*/
 		}
 		else{
 			plr.part.a->x = 0.0;
@@ -179,8 +221,9 @@ namespace mainLoop{
 		plr.part = particleLoop(plr.part, dt);
 		plr.part = ground(plr.part, 0.0);
 
-		plr.relVel->x = cos(phi)*plr.part.v->x+sin(phi)*plr.part.v->z;
-		plr.relVel->y = cos(phi)*plr.part.v->z-sin(phi)*plr.part.v->x;
+		auto yless = glm::vec2(plr.part.v->x, plr.part.v->z);
+
+		plr.relVel->y = sqrt(glm::dot(yless, yless));
 
 		return plr;
 	}
@@ -201,6 +244,7 @@ namespace mainLoop{
 		return cam;
 	}
 
+	//TODO: weapon switching
 	knife knifeLoop(world wrld, knife knf, player plr, float dt, float phi, float theta){//the world will be used later to colide the knife with stuff
 		glm::vec3 arm;
 		
@@ -313,7 +357,7 @@ namespace mainLoop{
 					//screen shake
 					auto dist = *rkts[i].part.p - *wrld.plr.part.p;
 					auto randVector = glm::vec3((rand()%100-50)/100.0, (rand()%100-50)/100.0, (rand()%100-50)/100.0);
-					*wrld.cam.part.v += 1.0f*glm::normalize(randVector)/sqrt(glm::dot(dist, dist));
+					*wrld.cam.part.v += 4.0f*glm::normalize(randVector)/sqrt(glm::dot(dist, dist));
 
 					*rkts[i].modelId = 6;
 				}
@@ -381,6 +425,10 @@ namespace mainLoop{
 				+ 10.0f*(*wrld.plr.part.v);
 		
 		rL.part = particleLoop(rL.part, dt);
+
+		if(glm::dot(((*wrld.plr.part.p)+arm)-(*rL.part.p), ((*wrld.plr.part.p)+arm)-(*rL.part.p)) > pow(0.5, 2)){
+			(*rL.part.p) = 0.5f*glm::normalize((*rL.part.p)-((*wrld.plr.part.p)+arm))+((*wrld.plr.part.p)+arm);
+		}
 		
 		*rL.att = lookQuat(lookDir, glm::vec3(0.0), glm::vec3(0.0, 1.0, 0.0));
 
@@ -392,7 +440,7 @@ namespace mainLoop{
 		for(int i = 0; i < 100; i++){
 			auto dist = *p.p - *rkts[i].part.p;
 			if(rkts[i].exploded && rkts[i].explosionTimer > 0.0 && glm::dot(dist, dist) <= pow(7.0, 2)){//TODO: make potential exponential
-				(*p.a) += 120.0f*exp(-0.1f*sqrt(glm::dot(dist, dist)))*glm::normalize(dist);//40.0f*glm::normalize(dist);
+				(*p.a) += 360.0f*exp(-0.1f*sqrt(glm::dot(dist, dist)))*glm::normalize(dist);//40.0f*glm::normalize(dist);
 				blown = true;
 			}
 		}
@@ -532,13 +580,32 @@ namespace mainLoop{
 
 		newWorld.cam = cameraLoop(newWorld.cam, *newWorld.plr.part.p, dt, phi, theta);
 
-		newWorld.knf = knifeLoop(newWorld, newWorld.knf, newWorld.plr, dt, phi, theta);
+		if(input::pressed('1')){
+			*newWorld.knf.part.p = *newWorld.plr.part.p+glm::vec3(0.0, 2.0, 0.0);//TODO: make the knife initializer
+			newWorld.wpn = 0;
+		}
+		if(input::pressed('2')){
+			*newWorld.rL.part.p = *newWorld.plr.part.p+glm::vec3(0.0, 0.0, 0.0);
+			newWorld.wpn = 1;
+		}
+
+		if(newWorld.wpn == 0){
+			newWorld.knf = knifeLoop(newWorld, newWorld.knf, newWorld.plr, dt, phi, theta);
+		}
+		else {
+			*newWorld.knf.part.p = glm::vec3(0.0, 100.0, 0.0);
+		}
+
+		if(newWorld.wpn == 1){
+			newWorld.rL = lawnChairLoop(newWorld.rL, newWorld, newWorld.rkts, dt, phi, theta);
+		}
+		else {
+			*newWorld.rL.part.p = glm::vec3(0.0, 100.0, 0.0);
+		}
 
 		newWorld.enemies = enemyLoop(newWorld, newWorld.enemies, newWorld.plr, dt, phi, theta);
 
 		newWorld.rkts = rocketsLoop(newWorld.rkts, newWorld, dt);
-
-		//newWorld.rL = lawnChairLoop(newWorld.rL, newWorld, newWorld.rkts, dt, phi, theta);
 
 		return newWorld;
 	}
