@@ -132,7 +132,7 @@ namespace mainLoop{
 			moveDir.x -= 1.0;
 		}
 
-		float speed = 3.0;//TODO: rename
+		float quickness = 3.0;//TODO: rename
 
 		float accel = 0.0;
 
@@ -141,32 +141,34 @@ namespace mainLoop{
 
 			if(*plr.dir != glm::vec2(0.0, 0.0)){
 				*plr.dir = glm::normalize(*plr.dir);
-			}
-
-			float dirperdtdt = 7.0*(1.0+0.25*(1.0-glm::dot(*plr.dir, moveDir)));
-			/*if(glm::dot(*plr.dir, moveDir) <= 0.0){
-				dirperdtdt = 20.0;
-			}*/
-
-			if(glm::dot(moveDir - *plr.dir, moveDir - *plr.dir) < dirperdtdt*dt){
-				*plr.dir = moveDir;
-			}
-			else{
-				*plr.dir += dirperdtdt*dt*glm::normalize(moveDir - *plr.dir);
-				if(*plr.dir != glm::vec2(0.0, 0.0)){
-					*plr.dir = glm::normalize(*plr.dir);
+			
+				float dirperdtdt = 7.0*(1.0+0.25*(1.0-glm::dot(*plr.dir, moveDir)));
+			
+				if(glm::dot(moveDir - *plr.dir, moveDir - *plr.dir) < dirperdtdt*dt){
+					*plr.dir = moveDir;
+				}
+				else{
+					auto perp = glm::vec2(-plr.dir->y, plr.dir->x);
+					bool cw = glm::dot(moveDir - *plr.dir, perp) > 0.0;
+					*plr.dir += dirperdtdt*dt*(cw ? 1.0f: -1.0f)*perp;//glm::normalize(moveDir - *plr.dir);
+					if(*plr.dir != glm::vec2(0.0, 0.0)){
+						*plr.dir = glm::normalize(*plr.dir);
+					}
 				}
 			}
+			else{
+				*plr.dir = moveDir;
+			}
 
-			accel = speed*1.0*exp(-abs(plr.speed)/7.0);
+			accel = quickness*1.0*exp(-abs(plr.speed)/7.0);
 
 			if(plr.part.p->y >= 0.0){
 				if(input::pressed(' ')){
 					plr.part.v->y = -12.0;
-					plr.speed += speed*2.0*exp(-abs(plr.speed)/14.0);
+					plr.speed += quickness*2.0*exp(-abs(plr.speed)/14.0);
 				}
 				else{
-					if(abs(plr.speed) < 50.0){
+					if(plr.speed < 50.0){
 						accel *= 10.0;
 					}
 					accel -= 1.0f*plr.speed;
@@ -202,8 +204,14 @@ namespace mainLoop{
 		auto yless = glm::vec2(plr.part.v->x, plr.part.v->z);
 
 		plr.speed = sqrt(glm::dot(yless, yless));
-		plr.dir->x = cos(phi)*yless.x+sin(phi)*yless.y;
-		plr.dir->y = cos(phi)*yless.y-sin(phi)*yless.x;
+
+		if(plr.speed > 10.0) {
+			plr.dir->x = cos(phi)*yless.x+sin(phi)*yless.y;
+			plr.dir->y = cos(phi)*yless.y-sin(phi)*yless.x;
+		}
+		else {
+			*plr.dir = glm::vec2(0.0, 0.0);
+		}
 		return plr;
 	}
 
@@ -587,7 +595,7 @@ namespace mainLoop{
 			*newWorld.rL.part.p = glm::vec3(0.0, 100.0, 0.0);
 		}
 
-		newWorld.enemies = enemyLoop(newWorld, newWorld.enemies, newWorld.plr, dt, phi, theta);
+		//newWorld.enemies = enemyLoop(newWorld, newWorld.enemies, newWorld.plr, dt, phi, theta);
 
 		newWorld.rkts = rocketsLoop(newWorld.rkts, newWorld, dt);
 

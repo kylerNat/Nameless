@@ -56,7 +56,18 @@ vec3 procTexGrad(vec3 position){
 			return 0.025*normalize(cross(vec3(position.xy - floor(position.xy*200.0)/200.0, 0.0), vec3(0.0, 0.0, 1.0)));
 			break;
 		case 2:
-			return 0.5*normalize(position - floor(position*50.0)/50.0);//TODO: fix contour-line-ing
+			/*
+			float r = sqrt(dot(position, position));
+			float phi = atan(position.z, position.x);
+			float flatR = sqrt(position.z*position.z+position.x*position.x);
+			float theta = atan(position.y, flatR);
+			float invSize = 50.0/pi; //1/size
+			theta = floor(theta*invSize)/invSize;
+			phi = floor(phi*invSize)/invSize;
+			r = floor(r*50.0)/50.0;
+			return 0.5*normalize(position - vec3(r*cos(theta)*cos(phi), r*sin(theta), r*cos(theta)*sin(phi)));
+			*/
+			return 0.5*normalize(position - floor(position*25.0)/25.0);//TODO: fix contour-line-ing
 			break;
 		case 3:
 			return 0.1*vec3(sin(mod(position.x*0.4, pi)), 0.0, sin(mod(position.z*0.4, pi)));
