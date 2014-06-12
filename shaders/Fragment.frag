@@ -46,6 +46,9 @@ float procTex(vec3 position){
 
 			return 0.75+0.25*grain;
 			break;
+		case 3:
+			return floor((sin(mod(position.x*0.4, pi)) + sin(mod(position.y*0.4, pi)) + sin(mod(position.z*0.4, pi)))*1.0)/1.0;
+			break;
 	}
 	return 1.0;
 }
@@ -67,10 +70,7 @@ vec3 procTexGrad(vec3 position){
 			r = floor(r*50.0)/50.0;
 			return 0.5*normalize(position - vec3(r*cos(theta)*cos(phi), r*sin(theta), r*cos(theta)*sin(phi)));
 			*/
-			return 0.5*normalize(position - floor(position*25.0)/25.0);//TODO: fix contour-line-ing
-			break;
-		case 3:
-			return 0.1*vec3(sin(mod(position.x*0.4, pi)), 0.0, sin(mod(position.z*0.4, pi)));
+			return 0.3*normalize(position - floor(position*25.0)/25.0);//TODO: fix contour-line-ing
 			break;
 	}
 	return vec3(0.0);
@@ -111,4 +111,9 @@ void main(){
 				+clamp(beckmann(fragPosition, normal, lightIn, m), 0.0, 1.0)
 			);
 	}
+
+	/*
+	const float clrDpth = 10.0;
+	gl_FragColor.xyz = floor(gl_FragColor.xyz*clrDpth)/clrDpth;//cel shading!
+	*/
 }

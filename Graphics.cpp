@@ -166,15 +166,14 @@ namespace graphics{
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LEQUAL);
         glDepthRange(0.0f, 1.0f);
-        //glEnable(GL_DEPTH_CLAMP);
+        glEnable(GL_DEPTH_CLAMP);
         return 0;
 	}
 
 	float theta = 0;//3.14;
 	void draw(HDC dc, GLuint program, vertexObject * objects, size_t nObjs, const world theWorld){//TODO: add render data(probably a VBO list) as an imput // do swap buffers stuff
-		//TODO: fix leaks
 		//TODO: redo shaders
-		//TODO: add animation, gui, color, and texture(possibly procedural textures) support
+		//TODO: add animation, and gui support
 
 		//temp
 
@@ -190,6 +189,8 @@ namespace graphics{
 		GLuint lights = glGetUniformLocation(program, "lights");
 
 		glViewport(0, 0, 1920, 1200);
+
+		glEnable(GL_DEPTH_TEST);
 
 		glClearColor(0.7, 0.8, 1.0, 1.0);
         glClearDepth(1.0f);
@@ -264,6 +265,8 @@ namespace graphics{
 			glDrawElements(GL_TRIANGLES, objects[i].data.indexSize, GL_UNSIGNED_SHORT, 0);
 			glBindVertexArray(0);
 		}
+
+		glDisable(GL_DEPTH_TEST);
 		//endtemp
 		SwapBuffers(dc);
 	}

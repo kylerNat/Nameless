@@ -28,7 +28,7 @@ glm::quat lookQuat(glm::vec3 camera, glm::vec3 center, glm::vec3 up){//lookAt fo
 
 //TODO: rewrite
 namespace mainLoop{
-	world createWorld(){//make constructor?
+	world createWorld(){
 		srand (time(NULL));
 		world newWorld;
 
@@ -132,7 +132,7 @@ namespace mainLoop{
 			moveDir.x -= 1.0;
 		}
 
-		float quickness = 3.0;//TODO: rename
+		float quickness = 3.0;
 
 		float accel = 0.0;
 
@@ -142,15 +142,15 @@ namespace mainLoop{
 			if(*plr.dir != glm::vec2(0.0, 0.0)){
 				*plr.dir = glm::normalize(*plr.dir);
 			
-				float dirperdtdt = 7.0*(1.0+0.25*(1.0-glm::dot(*plr.dir, moveDir)));
+				float dirperdt = 7.0*(1.0+0.25*(1.0-glm::dot(*plr.dir, moveDir)));
 			
-				if(glm::dot(moveDir - *plr.dir, moveDir - *plr.dir) < dirperdtdt*dt){
+				if(glm::dot(moveDir - *plr.dir, moveDir - *plr.dir) < dirperdt*dt){
 					*plr.dir = moveDir;
 				}
 				else{
 					auto perp = glm::vec2(-plr.dir->y, plr.dir->x);
 					bool cw = glm::dot(moveDir - *plr.dir, perp) > 0.0;
-					*plr.dir += dirperdtdt*dt*(cw ? 1.0f: -1.0f)*perp;//glm::normalize(moveDir - *plr.dir);
+					*plr.dir += dirperdt*dt*(cw ? 1.0f: -1.0f)*perp;//glm::normalize(moveDir - *plr.dir);
 					if(*plr.dir != glm::vec2(0.0, 0.0)){
 						*plr.dir = glm::normalize(*plr.dir);
 					}
@@ -205,7 +205,7 @@ namespace mainLoop{
 
 		plr.speed = sqrt(glm::dot(yless, yless));
 
-		if(plr.speed > 10.0) {
+		if(plr.speed > 1.0) {
 			plr.dir->x = cos(phi)*yless.x+sin(phi)*yless.y;
 			plr.dir->y = cos(phi)*yless.y-sin(phi)*yless.x;
 		}
@@ -231,8 +231,7 @@ namespace mainLoop{
 		return cam;
 	}
 
-	//TODO: weapon switching
-	knife knifeLoop(world wrld, knife knf, player plr, float dt, float phi, float theta){//the world will be used later to colide the knife with stuff
+	knife knifeLoop(world wrld, knife knf, player plr, float dt, float phi, float theta){
 		glm::vec3 arm;
 		
 		if(input::pressed(VK_RBUTTON)){
@@ -275,14 +274,12 @@ namespace mainLoop{
 				}*/
 				knf.angle = 1.05*(knf.onRight ? 1.0 : -1.0);
 			}
-		}
 
-		if(!knf.switching){
 			(*knf.part.a) = 
 				  165.0f*(((*plr.part.p)+arm)-(*knf.part.p))
-				- 20.0f*glm::proj((*knf.part.v), ((*plr.part.p)+arm)-(*knf.part.p))
-				- 10.0f*((*knf.part.v)-glm::proj((*knf.part.v), ((*plr.part.p)+arm)-(*knf.part.p)))
-				+ 10.0f*(*plr.part.v);
+				- 20.0f*glm::proj((*knf.part.v-*plr.part.v), ((*plr.part.p)+arm)-(*knf.part.p))
+				- 10.0f*((*knf.part.v-*plr.part.v)-glm::proj((*knf.part.v-*plr.part.v), ((*plr.part.p)+arm)-(*knf.part.p)))
+				;//+ 10.0f*(*plr.part.v);
 		}
 		else{
 			(*knf.part.a) = glm::vec3(0.0, gravity, 0.0);
@@ -345,7 +342,7 @@ namespace mainLoop{
 					auto dist = *rkts[i].part.p - *wrld.plr.part.p;
 					auto randVector = glm::vec3((rand()%100-50)/100.0, (rand()%100-50)/100.0, (rand()%100-50)/100.0);
 					if(randVector != glm::vec3(0.0)){
-						*wrld.cam.part.v += 4.0f*glm::normalize(randVector)/sqrt(glm::dot(dist, dist));
+						*wrld.cam.part.v += 400.0f*dt*glm::normalize(randVector)/sqrt(glm::dot(dist, dist));
 					}
 					*rkts[i].modelId = 6;
 				}
@@ -446,7 +443,18 @@ namespace mainLoop{
 
 			if(*enemies[i].health > 0.0){
 				if(*enemies[i].part.p != *plr.part.p){
-					auto lookDir = glm::vec3(sin(phi), 0.0, cos(phi));
+					auto lookDir = glm::vec3(-sin(phi), 0.0, cos(phi));
+					
+					bool lookedAtMeFunny = glm::dot(glm::normalize(lookDir), glm::normalize(*enemies[i].part.p - *plr.part.p)) >= cos(0.1*i);// && glm::dot(*plr.part.p - *enemies[i].part.p, *plr.part.p - *enemies[i].part.p) <= pow(8.0, 2));
+					*enemies[i].part.a = 1.0f*(speed*glm::normalize(*plr.part.p - *enemies[i].part.p) - *enemies[i].part.v);
+					auto relKnfVel = *enemies[i].part.v - *wrld.knf.part.v;
+					if(glm::dot(glm::normalize(relKnfVel), glm::normalize(knifeDist)) >= cos(0.1*i) && pow(glm::dot(knifeDist, knifeDist), 2)/glm::dot(relKnfVel, relKnfVel) < pow(10.0, 2)){// && lookedAtMeFunny){
+						auto sideDir = glm::normalize(glm::cross(*wrld.plr.part.p - *enemies[i].part.p, glm::vec3(0.0, 1.0, 0.0)));
+						*enemies[i].part.a = 2.0f*((glm::dot(knifeDist, sideDir) < 0.0 ? 1 : -1)*speed*sideDir - *enemies[i].part.v);
+						*enemies[i].part.a -= 1.0f*(speed*glm::normalize(*wrld.knf.part.p - *enemies[i].part.p) - *enemies[i].part.v);//TODO: vertically challenged code
+					}
+					
+					/*
 					*enemies[i].part.a = 1.0f*(speed*glm::normalize(*plr.part.p - *enemies[i].part.p) - *enemies[i].part.v);
 					bool lookedAtMeFunny = (glm::dot(glm::normalize(lookDir), glm::normalize(*enemies[i].part.p-*plr.part.p)) <= 0.005*i+0.5 && glm::dot(*plr.part.p - *enemies[i].part.p, *plr.part.p - *enemies[i].part.p) <= pow(8.0, 2));
 					if(glm::dot(knifeDist, knifeDist) < pow(1.6+1.0, 2) || lookedAtMeFunny){//improve knife dodging
@@ -455,6 +463,7 @@ namespace mainLoop{
 							*enemies[i].part.a -= 1.0f*(speed*glm::normalize(*plr.part.p - *enemies[i].part.p) - *enemies[i].part.v);
 						}
 					}
+					*/
 
 					glm::vec3 rockPos = glm::vec3(0.0);
 					bool dodgeRocket = false;
@@ -475,28 +484,29 @@ namespace mainLoop{
 				}
 
 				if(glm::dot(knifeDist, knifeDist) < pow(1.6, 2) && knifeDist != glm::vec3(0.0)){
-						float dmg = sqrt(glm::dot(*wrld.knf.part.v, *wrld.knf.part.v));
+					//*enemies[i].health = 0.0;
+					float dmg = sqrt(glm::dot(*wrld.knf.part.v, *wrld.knf.part.v));
 				
-						*enemies[i].part.p -= sqrt(pow(1.6f, 2.0f) - glm::dot(knifeDist, knifeDist)) * glm::normalize(knifeDist);
-						*enemies[i].part.v +=
-							  log(1.0f+0.01f*glm::dot(*wrld.knf.part.v, *wrld.knf.part.v))
-							* glm::proj(*wrld.knf.part.v, *wrld.knf.part.p - *enemies[i].part.p)
-							- glm::proj(*enemies[i].part.v, *plr.part.p - *enemies[i].part.p);
-						enemies[i].part.v->y = -0.5*dmg;
+					*enemies[i].part.p -= sqrt(pow(1.6f, 2.0f) - glm::dot(knifeDist, knifeDist)) * glm::normalize(knifeDist);
+					*enemies[i].part.v +=
+							log(1.0f+0.01f*glm::dot(*wrld.knf.part.v, *wrld.knf.part.v))
+						* glm::proj(*wrld.knf.part.v, *wrld.knf.part.p - *enemies[i].part.p)
+						- glm::proj(*enemies[i].part.v, *plr.part.p - *enemies[i].part.p);
+					enemies[i].part.v->y = -0.5*dmg;
 
-						*enemies[i].health -= 0.5*dmg;
+					*enemies[i].health -= 0.5*dmg;
 
-						//screen shake
-						auto shake = glm::vec3((rand()%100-50)/100.0, (rand()%100-50)/100.0, (rand()%100-50)/100.0);
-						*wrld.cam.part.v = 0.5f*dmg*glm::normalize(shake);
+					//screen shake
+					auto shake = glm::vec3((rand()%100-50)/100.0, (rand()%100-50)/100.0, (rand()%100-50)/100.0);
+					*wrld.cam.part.v = 0.5f*dmg*glm::normalize(shake);
 
-						if(*wrld.slowMoTimer < 0.0){
-							*wrld.slowMoTimer = 0.0;
-						}
-						*wrld.slowMoTimer += 0.0005f*dmg;
-						if(*wrld.slowMoTimer > 0.5){
-							*wrld.slowMoTimer = 0.5;
-						}
+					if(*wrld.slowMoTimer < 0.0){
+						*wrld.slowMoTimer = 0.0;
+					}
+					*wrld.slowMoTimer += 0.0005f*dmg;
+					if(*wrld.slowMoTimer > 0.5){
+						*wrld.slowMoTimer = 0.5;
+					}
 				}
 
 				auto playerDist = *plr.part.p - *enemies[i].part.p;
@@ -595,7 +605,7 @@ namespace mainLoop{
 			*newWorld.rL.part.p = glm::vec3(0.0, 100.0, 0.0);
 		}
 
-		//newWorld.enemies = enemyLoop(newWorld, newWorld.enemies, newWorld.plr, dt, phi, theta);
+		newWorld.enemies = enemyLoop(newWorld, newWorld.enemies, newWorld.plr, dt, phi, theta);
 
 		newWorld.rkts = rocketsLoop(newWorld.rkts, newWorld, dt);
 
